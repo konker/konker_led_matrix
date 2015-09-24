@@ -1,7 +1,7 @@
 /**
  * UltrathinLED
  *
- * A library for driving the Seeedstudio Ultrathing LED matrix
+ * A library for driving the Seeedstudio Ultrathin LED matrix
  *
  * Author: Konrad Markus <konker@luxvelocitas.com>
  */
@@ -21,9 +21,10 @@ public:
     void begin(uint8_t *display_buffer, uint8_t width, uint8_t height);
     void scan();
     void clear();
-    void set_pixel(uint16_t x, uint16_t y, bool on);
-    void set_region(uint8_t *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void set_pixel(uint16_t x, uint16_t y);
+    void clear_pixel(uint16_t x, uint16_t y);
     void set_region(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void set_region_hflip(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void on();
     void off();
     void reverse();

@@ -62,12 +62,8 @@ void UltrathinLEDMatrix::scan() {
         // Apply the mask
         pixel8 ^= m_mask;
 
-        // Write each pixel in the byte, also in reverse order
-        for (int8_t b=7; b>=0; b--) {
-            digitalWrite(m_clk, LOW);
-            digitalWrite(m_r1, pixel8 & (0x80 >> b));
-            digitalWrite(m_clk, HIGH);
-        }
+        // Write each pixel in the byte, in reverse order
+        shiftOut(m_r1, m_clk, MSBFIRST, pixel8);
     }
 
     // Disable display
@@ -100,14 +96,12 @@ void UltrathinLEDMatrix::clear() {
     }
 }
 
-void UltrathinLEDMatrix::set_pixel(uint16_t x, uint16_t y, bool on) {
-    uint8_t b = x % 8;
-    if (on) {
-        m_display_buffer[buf_offset(x, y)] |= (0x80 >> b);
-    }
-    else {
-        m_display_buffer[buf_offset(x, y)] &= ~(0x80 >> b);
-    }
+void UltrathinLEDMatrix::set_pixel(uint16_t x, uint16_t y) {
+    bitWrite(m_display_buffer[buf_offset(x, y)], x % 8, 1);
+}
+
+void UltrathinLEDMatrix::clear_pixel(uint16_t x, uint16_t y) {
+    bitWrite(m_display_buffer[buf_offset(x, y)], x % 8, 0);
 }
 
 void UltrathinLEDMatrix::set_region(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
@@ -118,17 +112,27 @@ void UltrathinLEDMatrix::set_region(char *buf, uint16_t x, uint16_t y, uint16_t 
             uint8_t p = (pixel8 >> b) & 1;
 
             if (p) {
-                set_pixel(x+bx, y+by, true);
+                set_pixel(x+bx, y+by);
+            }
+            else {
+                clear_pixel(x+bx, y+by);
             }
         }
     }
 }
 
-void UltrathinLEDMatrix::set_region(uint8_t *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
+void UltrathinLEDMatrix::set_region_hflip(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
     for (int16_t by=0; by<h; by++) {
         for (int16_t bx=0; bx<w; bx++) {
-            if (is_set(buf, bx, by, w, h)) {
-                set_pixel(x, y, true);
+            uint8_t pixel8 = buf[(by*w+bx)/8];
+            uint8_t b = 7 - (bx % 8);
+            uint8_t p = (pixel8 >> b) & 1;
+
+            if (p) {
+                set_pixel(x+bx, y+by);
+            }
+            else {
+                clear_pixel(x+bx, y+by);
             }
         }
     }
@@ -144,7 +148,7 @@ void UltrathinLEDMatrix::off() {
 }
 
 void UltrathinLEDMatrix::reverse() {
-    m_mask ^= m_mask;
+    m_mask = ~m_mask;
 }
 
 
