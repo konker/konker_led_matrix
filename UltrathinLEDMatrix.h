@@ -8,6 +8,8 @@
 
 #ifndef __ULTRATHIN_LED_MATRIX_H__
 #define __ULTRATHIN_LED_MATRIX_H__
+#define TEXT1_LEN 64
+#define TEXT2_LEN 64
 
 #include <stdint.h>
 
@@ -22,12 +24,18 @@ public:
     void scan();
     void clear();
     void set_pixel(uint16_t x, uint16_t y);
+    void set_pixel(uint16_t x, uint16_t y, uint8_t b);
     void clear_pixel(uint16_t x, uint16_t y);
+    void clear_pixel(uint16_t x, uint16_t y, uint8_t b);
     void set_region(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void set_region_hflip(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void on();
     void off();
     void reverse();
+    void set_offset(uint16_t x_offset, uint16_t y_offset);
+    void set_text1(const char *text1);
+    void write_char(uint16_t x, uint16_t y, char c);
+    void render_text1(uint16_t x_offset);
 
 private:
     uint8_t  m_a, m_b, m_c, m_d, m_oe, m_r1, m_stb, m_clk;
@@ -36,6 +44,9 @@ private:
     uint8_t  *m_display_buffer;
     uint8_t  m_mask;
     bool     m_active;
+    uint16_t m_x_offset;
+    uint16_t m_y_offset;
+    char     m_text1[TEXT1_LEN];
 
     uint16_t m_row_width;
     uint16_t m_scan_row;
