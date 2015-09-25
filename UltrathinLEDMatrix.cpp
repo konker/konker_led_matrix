@@ -33,6 +33,10 @@ UltrathinLEDMatrix::UltrathinLEDMatrix(
         m_text1[i] = 0x0;
     }
 
+    for (int i=0; i<TEXT2_LEN; i++) {
+        m_text2[i] = 0x0;
+    }
+
     m_mask = 0xff;
     m_active = false;
     m_scan_row = 0;
@@ -182,6 +186,15 @@ void UltrathinLEDMatrix::set_offset(uint16_t x_offset, uint16_t y_offset) {
     m_y_offset = y_offset;
 }
 
+void UltrathinLEDMatrix::write_char(uint16_t x, uint16_t y, char c) {
+    set_region(konker_bitfont_basic[c], x,y, 8,6);
+}
+
+int16_t UltrathinLEDMatrix::set_text1(const char *text1) {
+    strcpy(m_text1, text1);
+    return get_text1_len();
+}
+
 void UltrathinLEDMatrix::render_text1(uint16_t x_offset) {
     for (int8_t i=0; i<strlen(m_text1); i++) {
         if (x_offset+6*i < m_width) {
@@ -190,11 +203,24 @@ void UltrathinLEDMatrix::render_text1(uint16_t x_offset) {
     }
 }
 
-void UltrathinLEDMatrix::set_text1(const char *text1) {
-    strcpy(m_text1, text1);
+int16_t UltrathinLEDMatrix::get_text1_len() {
+    return strlen(m_text1);
 }
 
-void UltrathinLEDMatrix::write_char(uint16_t x, uint16_t y, char c) {
-    set_region(konker_bitfont_basic[c], x,y, 8,6);
+int16_t UltrathinLEDMatrix::set_text2(const char *text2) {
+    strcpy(m_text2, text2);
+    return get_text2_len();
+}
+
+void UltrathinLEDMatrix::render_text2(uint16_t x_offset) {
+    for (int8_t i=0; i<strlen(m_text2); i++) {
+        if (x_offset+6*i < m_width) {
+            write_char(x_offset+6*i, 8, m_text2[i]);
+        }
+    }
+}
+
+int16_t UltrathinLEDMatrix::get_text2_len() {
+    return strlen(m_text2);
 }
 
