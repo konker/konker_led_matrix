@@ -9,9 +9,15 @@
 #include "UltrathinLEDMatrix.h"
 #include "konker_bitfont_basic.h"
 
+#define BYTE_WIDTH 8
+#define CHARACTER_HEIGHT 6
+#define CHARACTER_SPACING 1
+
 #define row_offset(y) (m_row_width*y)
 #define buf_offset(x, y) (row_offset(y)+x/8)
 #define is_set(buf, x, y, w, h) ((buf[w/8*y+x/8] >> (7 - (x % 8))) & 1)
+#define buf_index(x, y, w) (y*w + x)/BYTE_WIDTH
+#define get_pixel8(buf, x, y, w) buf[buf_index(x, y, w)];
 
 
 UltrathinLEDMatrix::UltrathinLEDMatrix(
@@ -27,8 +33,6 @@ UltrathinLEDMatrix::UltrathinLEDMatrix(
     m_stb = stb;
     m_clk = clk;
 
-    m_x_offset = 0;
-    m_y_offset = 0;
     for (int i=0; i<TEXT1_LEN; i++) {
         m_text1[i] = 0x0;
     }
@@ -46,7 +50,7 @@ void UltrathinLEDMatrix::begin(uint8_t *display_buffer, uint8_t width, uint8_t h
     m_width = width;
     m_height = height;
     m_display_buffer = display_buffer;
-    m_row_width = (m_width / 8);
+    m_row_width = (m_width / BYTE_WIDTH);
 
     pinMode(m_a, OUTPUT);
     pinMode(m_b, OUTPUT);
@@ -107,63 +111,49 @@ void UltrathinLEDMatrix::clear() {
     }
 }
 
-void UltrathinLEDMatrix::set_pixel(uint16_t x, uint16_t y) {
-    bitWrite(m_display_buffer[buf_offset(x, y)], x % 8, 1);
+void UltrathinLEDMatrix::set_pixel(int16_t x, int16_t y) {
+    bitWrite(m_display_buffer[buf_offset(x, y)], x % BYTE_WIDTH, 1);
 }
 
-void UltrathinLEDMatrix::set_pixel(uint16_t x, uint16_t y, uint8_t b) {
+void UltrathinLEDMatrix::set_pixel(int16_t x, int16_t y, uint8_t b) {
     bitWrite(m_display_buffer[buf_offset(x, y)], b, 1);
 }
 
-void UltrathinLEDMatrix::clear_pixel(uint16_t x, uint16_t y) {
-    bitWrite(m_display_buffer[buf_offset(x, y)], x % 8, 0);
+void UltrathinLEDMatrix::clear_pixel(int16_t x, int16_t y) {
+    bitWrite(m_display_buffer[buf_offset(x, y)], x % BYTE_WIDTH, 0);
 }
 
-void UltrathinLEDMatrix::clear_pixel(uint16_t x, uint16_t y, uint8_t b) {
+void UltrathinLEDMatrix::clear_pixel(int16_t x, int16_t y, uint8_t b) {
     bitWrite(m_display_buffer[buf_offset(x, y)], b, 0);
 }
 
-void UltrathinLEDMatrix::set_region(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
+void UltrathinLEDMatrix::set_region(char *buf, int16_t x, int16_t y, uint16_t w, uint16_t h) {
     for (int16_t by=0; by<h; by++) {
         for (int16_t bx=0; bx<w; bx++) {
-            int16_t X = x+bx;
-            if (X >= m_width || X < 0) {
+            int16_t _x = x+bx;
+            int16_t _y = y+by;
+            if (_x >= m_width || _x < 0) {
                 continue;
             }
 
-            uint8_t pixel8 = buf[(by*w+bx)/8];
-            uint8_t b = (bx % 8);
-            uint8_t p = (pixel8 << b) & 0x80;
+            uint8_t pixel8 = get_pixel8(buf, bx, by, w);
+            uint8_t b = (bx % BYTE_WIDTH);
 
-            if (p) {
-                set_pixel(X, y+by);
+            if ((pixel8 << b) & 0x80) {
+                set_pixel(_x, _y);
             }
             else {
-                clear_pixel(X, y+by);
+                clear_pixel(_x, _y);
             }
         }
     }
 }
 
-void UltrathinLEDMatrix::set_region_hflip(char *buf, uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
+void UltrathinLEDMatrix::clear_region(int16_t x, int16_t y, uint16_t w, uint16_t h) {
     for (int16_t by=0; by<h; by++) {
-        if (x+by > m_height) {
-            continue;
-        }
         for (int16_t bx=0; bx<w; bx++) {
-            if (x+bx > m_width) {
-                continue;
-            }
-            uint8_t pixel8 = buf[(by*w+bx)/8];
-            uint8_t b = (bx % 8);
-            uint8_t p = (pixel8 >> b) & 0x01;
-
-            if (p) {
-                set_pixel(x+bx, y+by, b);
-            }
-            else {
-                clear_pixel(x+bx, y+by, b);
-            }
+            int16_t X = x+bx;
+            clear_pixel(X, y+by);
         }
     }
 }
@@ -181,46 +171,70 @@ void UltrathinLEDMatrix::reverse() {
     m_mask = ~m_mask;
 }
 
-void UltrathinLEDMatrix::set_offset(uint16_t x_offset, uint16_t y_offset) {
-    m_x_offset = x_offset;
-    m_y_offset = y_offset;
+void UltrathinLEDMatrix::write_char(int16_t x, int16_t y, char c) {
+    set_region(
+            konker_bitfont_basic[c],
+            x, y,
+            BYTE_WIDTH,CHARACTER_HEIGHT);
 }
 
-void UltrathinLEDMatrix::write_char(uint16_t x, uint16_t y, char c) {
-    set_region(konker_bitfont_basic[c], x,y, 8,6);
+uint16_t UltrathinLEDMatrix::set_text1(const char *text) {
+    strcpy(m_text1, text);
+    m_text1_len = strlen(m_text1);
+    return m_text1_len;
 }
 
-int16_t UltrathinLEDMatrix::set_text1(const char *text1) {
-    strcpy(m_text1, text1);
-    return get_text1_len();
-}
-
-void UltrathinLEDMatrix::render_text1(uint16_t x_offset) {
-    for (int8_t i=0; i<strlen(m_text1); i++) {
-        if (x_offset+6*i < m_width) {
-            write_char(x_offset+6*i, 0, m_text1[i]);
+void UltrathinLEDMatrix::render_text1(int16_t x_offset, int16_t y_offset) {
+    int16_t width_accum = 0;
+    for (int8_t i=0; i<m_text1_len; i++) {
+        int16_t _x = x_offset + width_accum;
+        if (_x < m_width) {
+            set_region(
+                    konker_bitfont_basic[m_text1[i]],
+                    _x, y_offset,
+                    BYTE_WIDTH, CHARACTER_HEIGHT);
         }
+        width_accum +=
+            (konker_bitfont_basic_metrics[m_text1[i]] + CHARACTER_SPACING);
     }
 }
 
-int16_t UltrathinLEDMatrix::get_text1_len() {
-    return strlen(m_text1);
+uint16_t UltrathinLEDMatrix::get_text1_pixel_len() {
+    uint16_t ret = 0;
+    for (int16_t i=0; i<m_text1_len; i++) {
+        ret +=
+            (konker_bitfont_basic_metrics[m_text1[i]] + CHARACTER_SPACING);
+    }
+    return ret;
 }
 
-int16_t UltrathinLEDMatrix::set_text2(const char *text2) {
-    strcpy(m_text2, text2);
-    return get_text2_len();
+uint16_t UltrathinLEDMatrix::set_text2(const char *text) {
+    strcpy(m_text2, text);
+    m_text2_len = strlen(m_text2);
+    return m_text2_len;
 }
 
-void UltrathinLEDMatrix::render_text2(uint16_t x_offset) {
-    for (int8_t i=0; i<strlen(m_text2); i++) {
-        if (x_offset+6*i < m_width) {
-            write_char(x_offset+6*i, 8, m_text2[i]);
+void UltrathinLEDMatrix::render_text2(int16_t x_offset, int16_t y_offset) {
+    uint16_t width_accum = 0;
+    for (int8_t i=0; i<m_text2_len; i++) {
+        int16_t _x = x_offset + width_accum;
+        if (_x < m_width) {
+            set_region(
+                    konker_bitfont_basic[m_text2[i]],
+                    _x, y_offset,
+                    BYTE_WIDTH, CHARACTER_HEIGHT);
         }
+        width_accum +=
+            (konker_bitfont_basic_metrics[m_text2[i]] + CHARACTER_SPACING);
     }
 }
 
-int16_t UltrathinLEDMatrix::get_text2_len() {
-    return strlen(m_text2);
+uint16_t UltrathinLEDMatrix::get_text2_pixel_len() {
+    uint16_t ret = 0;
+    for (int16_t i=0; i<m_text2_len; i++) {
+        ret +=
+            (konker_bitfont_basic_metrics[m_text2[i]] + CHARACTER_SPACING);
+    }
+    return ret;
 }
 
