@@ -1,16 +1,16 @@
 CC = gcc
 CFLAGS = -Wall -g -std=c99 -fno-builtin -Iinclude -lwiringPi -lm
-utilObjs = ulm.o
+utilObjs = kulm.o
 
-libulm.a: $(utilObjs)
+libkulm.a: $(utilObjs)
 	ar rc $@ $(utilObjs)
 	ranlib $@
 
-ulm.o: ulm.c include/ulm.h
+$(utilObjs): kulm.c include/kulm.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o libulm.a
+	rm -rf *.o libkulm.a
 
-all: libulm.a
+all: libkulm.a
 .PHONY: all clean
