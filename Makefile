@@ -1,16 +1,16 @@
 CC = gcc
-CFLAGS = -Wall -g -std=c99 -fno-builtin -lwiringPi -lm
-utilObjs = UltrathinLEDMatrix.o
+CFLAGS = -Wall -g -std=c99 -fno-builtin -Iinclude -lwiringPi -lm
+utilObjs = ulm.o
 
-libUltrathinLEDMatrix.a: $(utilObjs)
+libulm.a: $(utilObjs)
 	ar rc $@ $(utilObjs)
 	ranlib $@
 
-UltrathinLEDMatrix.o: UltrathinLEDMatrix.c UltrathinLEDMatrix.h
+ulm.o: ulm.c include/ulm.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o libUltrathinLEDMatrix.a
+	rm -rf *.o libulm.a
 
-all: libUltrathinLEDMatrix.a
+all: libulm.a
 .PHONY: all clean
