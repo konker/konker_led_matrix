@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -std=c99 -fno-builtin -Iinclude -lwiringPi -lm
+CFLAGS = -Wall -g -fno-builtin -Iinclude -lwiringPi -lm
 utilObjs = kulm.o
 
 libkulm.a: $(utilObjs)

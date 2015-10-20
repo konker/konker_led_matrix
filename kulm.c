@@ -11,8 +11,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include <wiringPi.h>
-#include <wiringShift.h>
+
+#ifdef ARDUINO
+# include <Arduino.h>
+#else
+# include <wiringPi.h>
+# include <wiringShift.h>
+#endif
+
 #include "kulm.h"
 #include "konker_bitfont_basic.h"
 
@@ -32,7 +38,13 @@
 #define KULM_CHARACTER_SPACING 1
 
 
+void kulm_begin() {
+    wiringPiSetup();
+}
+
 kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height) {
+    int i;
+
     // Allocate memory for a kulm_matrix structure and initialize all members
     kulm_matrix * const matrix = malloc(sizeof(kulm_matrix));
 
@@ -45,7 +57,7 @@ kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t 
     matrix->text1_speed = 0;
     matrix->text1_pos = 0;
     matrix->text1_pixel_len = 0;
-    for (int i=0; i<KULM_TEXT1_LEN; i++) {
+    for (i=0; i<KULM_TEXT1_LEN; i++) {
         matrix->text1[i] = 0x0;
     }
 
@@ -53,7 +65,7 @@ kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t 
     matrix->text2_speed = 0;
     matrix->text2_pos = 0;
     matrix->text2_pixel_len = 0;
-    for (int i=0; i<KULM_TEXT2_LEN; i++) {
+    for (i=0; i<KULM_TEXT2_LEN; i++) {
         matrix->text2[i] = 0x0;
     }
 
@@ -100,7 +112,8 @@ void kulm_scan(kulm_matrix *matrix) {
     uint8_t offset = KULM_ROW_OFFSET(matrix, matrix->scan_row);
 
     // Process the row in reverse order
-    for (int16_t x8=matrix->row_width-1; x8>=0; x8--) {
+    int16_t x8;
+    for (x8=matrix->row_width-1; x8>=0; x8--) {
         uint8_t pixel8 = matrix->display_buffer[offset + x8];
 
         // Apply the mask
@@ -135,7 +148,8 @@ void kulm_scan(kulm_matrix *matrix) {
 }
 
 void kulm_clear(kulm_matrix *matrix) {
-    for (uint16_t i=0; i<(matrix->height*matrix->row_width); i++) {
+    int16_t i;
+    for (i=0; i<(matrix->height*matrix->row_width); i++) {
         matrix->display_buffer[i] = 0x00;
     }
 }
@@ -149,8 +163,10 @@ void kulm_clear_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
 }
 
 void kulm_set_region(kulm_matrix *matrix, char *buf, int16_t x, int16_t y, uint16_t w, uint16_t h) {
-    for (int16_t by=0; by<h; by++) {
-        for (int16_t bx=0; bx<w; bx++) {
+    int16_t by, bx;
+
+    for (by=0; by<h; by++) {
+        for (bx=0; bx<w; bx++) {
             int16_t _x = x+bx;
             int16_t _y = y+by;
             if (_x >= matrix->width || _x < 0) {
@@ -171,8 +187,10 @@ void kulm_set_region(kulm_matrix *matrix, char *buf, int16_t x, int16_t y, uint1
 }
 
 void kulm_clear_region(kulm_matrix *matrix, int16_t x, int16_t y, uint16_t w, uint16_t h) {
-    for (int16_t by=0; by<h; by++) {
-        for (int16_t bx=0; bx<w; bx++) {
+    int16_t by, bx;
+
+    for (by=0; by<h; by++) {
+        for (bx=0; bx<w; bx++) {
             int16_t X = x+bx;
             kulm_clear_pixel(matrix, X, y+by);
         }
@@ -221,7 +239,9 @@ void kulm_set_text1_speed(kulm_matrix *matrix, float speed) {
 
 void kulm_render_text1(kulm_matrix *matrix, int16_t x_offset, int16_t y_offset) {
     uint16_t width_accum = 0;
-    for (int8_t i=0; i<matrix->text1_len; i++) {
+    int16_t i;
+
+    for (i=0; i<matrix->text1_len; i++) {
         int16_t _x = x_offset + width_accum;
         if (_x < matrix->width) {
             kulm_set_region(
@@ -237,7 +257,9 @@ void kulm_render_text1(kulm_matrix *matrix, int16_t x_offset, int16_t y_offset) 
 
 uint16_t kulm_get_text1_pixel_len(kulm_matrix *matrix) {
     uint16_t ret = 0;
-    for (int16_t i=0; i<matrix->text1_len; i++) {
+    int16_t i;
+
+    for (i=0; i<matrix->text1_len; i++) {
         ret +=
             (konker_bitfont_basic_metrics[(unsigned char)(matrix->text1[i])] + KULM_CHARACTER_SPACING);
     }
@@ -257,7 +279,9 @@ void kulm_set_text2_speed(kulm_matrix *matrix, float speed) {
 
 void kulm_render_text2(kulm_matrix *matrix, int16_t x_offset, int16_t y_offset) {
     uint16_t width_accum = 0;
-    for (int8_t i=0; i<matrix->text2_len; i++) {
+    int16_t i;
+
+    for (i=0; i<matrix->text2_len; i++) {
         int16_t _x = x_offset + width_accum;
         if (_x < matrix->width) {
             kulm_set_region(
@@ -273,7 +297,9 @@ void kulm_render_text2(kulm_matrix *matrix, int16_t x_offset, int16_t y_offset) 
 
 uint16_t kulm_get_text2_pixel_len(kulm_matrix *matrix) {
     uint16_t ret = 0;
-    for (int16_t i=0; i<matrix->text2_len; i++) {
+    int16_t i;
+
+    for (i=0; i<matrix->text2_len; i++) {
         ret +=
             (konker_bitfont_basic_metrics[(unsigned char)(matrix->text2[i])] + KULM_CHARACTER_SPACING);
     }
