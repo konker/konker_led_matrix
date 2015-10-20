@@ -38,8 +38,12 @@
 #define KULM_CHARACTER_SPACING 1
 
 
-void kulm_begin() {
-    wiringPiSetup();
+int kulm_begin() {
+#ifdef ARDUINO
+    return 0;
+#else
+    return wiringPiSetup();
+#endif
 }
 
 kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height) {

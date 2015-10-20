@@ -52,7 +52,7 @@ typedef struct kulm_matrix
 } kulm_matrix;
 
 
-void kulm_begin();
+int kulm_begin();
 kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height);
 void kulm_destroy(kulm_matrix * const matrix);
 void kulm_init(kulm_matrix * const matrix,
