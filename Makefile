@@ -6,7 +6,7 @@ libkulm.a: $(utilObjs)
 	ar rc $@ $(utilObjs)
 	ranlib $@
 
-$(utilObjs): kulm.c include/kulm.h
+$(utilObjs): kulm.c kulm.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
