@@ -9,6 +9,10 @@
 #ifndef __KONKER_ULTRATHIN_LED_MATRIX_H__
 #define __KONKER_ULTRATHIN_LED_MATRIX_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define KULM_TEXT1_LEN 64
@@ -77,5 +81,9 @@ void kulm_set_text2_speed(kulm_matrix * const matrix, float speed);
 uint16_t kulm_get_text2_pixel_len(kulm_matrix * const matrix);
 void kulm_render_text2(kulm_matrix * const matrix, int16_t x_offset, int16_t y_offset);
 void kulm_tick(kulm_matrix * const matrix);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __KONKER_ULTRATHIN_LED_MATRIX_H__
