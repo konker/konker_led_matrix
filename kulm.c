@@ -1,11 +1,24 @@
 /**
- * Konker's ultrathing LED matrix library
+ * Konker's ultrathin LED matrix library
  *
- * A library for controlling the Seeedstudio ultrathin red LED matrix
+ * A library for driving the Seeedstudio Ultrathin red LED matrix
  *
- * http://www.seeedstudio.com/depot/Ultrathin-16x32-Red-LED-Matrix-Panel-p-1582.html
+ * Copyright 2015, Konrad Markus <konker@luxvelocitas.com>
  *
- * Author: Konrad Markus <konker@luxvelocitas.com>
+ * This file is part of konker_ultrathin_led_matrix.
+ *
+ * konker_ultrathin_led_matrix is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Foobar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdlib.h>
