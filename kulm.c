@@ -4,6 +4,7 @@
  * A library for controlling the Seeedstudio ultrathin red LED matrix
  *
  * http://www.seeedstudio.com/depot/Ultrathin-16x32-Red-LED-Matrix-Panel-p-1582.html
+ *
  * Author: Konrad Markus <konker@luxvelocitas.com>
  */
 
@@ -13,26 +14,26 @@
 #include <math.h>
 
 #ifdef ARDUINO
-# include <Arduino.h>
+#  include <Arduino.h>
 #else
-# include <wiringPi.h>
-# include <wiringShift.h>
+#  include <wiringPi.h>
+#  include <wiringShift.h>
+// Why aren't these in wiringPi?
+#  define bitRead(value, bit) (((value) >> (bit)) & 0x01)
+#  define bitSet(value, bit) ((value) |= (1UL << (bit)))
+#  define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
+#  define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 #endif
 
 #include "kulm.h"
-#include "konker_bitfont_basic.h"
 
-// Why aren't these in wiringPi?
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
-
+// Macros for convenience
 #define KULM_ROW_OFFSET(matrix, y) (matrix->row_width*y)
 #define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/8)
 #define KULM_BUF_INDEX(x, y, w) (y*w + x)/KULM_BYTE_WIDTH
 #define KULM_GET_PIXEL8(buf, x, y, w) buf[KULM_BUF_INDEX(x, y, w)];
 
+// Symbolic constants
 #define KULM_BYTE_WIDTH 8
 #define KULM_CHARACTER_HEIGHT 6
 #define KULM_CHARACTER_SPACING 1
@@ -46,7 +47,16 @@ int kulm_begin() {
 #endif
 }
 
-kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height) {
+/**
+ * Create a new matrix
+ *
+ * @param display_buffer  A uint8_t array of length width * height to hold the contents of the matrix display
+ * @param width  The total width of the matrix, or matrices, in "pixels"
+ * @param height The total height of the matrix, or matrices, in "pixels"
+ *
+ * @return  A pointer to a newly initialized matrix stucture
+ */
+kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height, char *font[], char *font_metrics) {
     int i;
 
     // Allocate memory for a kulm_matrix structure and initialize all members
@@ -55,6 +65,8 @@ kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t 
     matrix->width = width;
     matrix->height = height;
     matrix->display_buffer = display_buffer;
+    matrix->font = font;
+    matrix->font_metrics = font_metrics;
     matrix->row_width = (width / KULM_BYTE_WIDTH);
 
     matrix->text1_len = 0;
@@ -225,7 +237,7 @@ void kulm_reverse(kulm_matrix *matrix) {
 void kulm_write_char(kulm_matrix *matrix, int16_t x, int16_t y, char c) {
     kulm_set_region(
             matrix,
-            konker_bitfont_basic[(unsigned char)(c)],
+            matrix->font[(unsigned char)(c)],
             x, y,
             KULM_BYTE_WIDTH,KULM_CHARACTER_HEIGHT);
 }
@@ -250,12 +262,12 @@ void kulm_render_text1(kulm_matrix *matrix, int16_t x_offset, int16_t y_offset) 
         if (_x < matrix->width) {
             kulm_set_region(
                     matrix,
-                    konker_bitfont_basic[(unsigned char)(matrix->text1[i])],
+                    matrix->font[(unsigned char)(matrix->text1[i])],
                     _x, y_offset,
                     KULM_BYTE_WIDTH, KULM_CHARACTER_HEIGHT);
         }
         width_accum +=
-            (konker_bitfont_basic_metrics[(unsigned char)(matrix->text1[i])] + KULM_CHARACTER_SPACING);
+            (matrix->font_metrics[(unsigned char)(matrix->text1[i])] + KULM_CHARACTER_SPACING);
     }
 }
 
@@ -265,7 +277,7 @@ uint16_t kulm_get_text1_pixel_len(kulm_matrix *matrix) {
 
     for (i=0; i<matrix->text1_len; i++) {
         ret +=
-            (konker_bitfont_basic_metrics[(unsigned char)(matrix->text1[i])] + KULM_CHARACTER_SPACING);
+            (matrix->font_metrics[(unsigned char)(matrix->text1[i])] + KULM_CHARACTER_SPACING);
     }
     return ret;
 }
@@ -290,12 +302,12 @@ void kulm_render_text2(kulm_matrix *matrix, int16_t x_offset, int16_t y_offset) 
         if (_x < matrix->width) {
             kulm_set_region(
                     matrix,
-                    konker_bitfont_basic[(unsigned char)(matrix->text2[i])],
+                    matrix->font[(unsigned char)(matrix->text2[i])],
                     _x, y_offset,
                     KULM_BYTE_WIDTH, KULM_CHARACTER_HEIGHT);
         }
         width_accum +=
-            (konker_bitfont_basic_metrics[(unsigned char)(matrix->text2[i])] + KULM_CHARACTER_SPACING);
+            (matrix->font_metrics[(unsigned char)(matrix->text2[i])] + KULM_CHARACTER_SPACING);
     }
 }
 
@@ -305,7 +317,7 @@ uint16_t kulm_get_text2_pixel_len(kulm_matrix *matrix) {
 
     for (i=0; i<matrix->text2_len; i++) {
         ret +=
-            (konker_bitfont_basic_metrics[(unsigned char)(matrix->text2[i])] + KULM_CHARACTER_SPACING);
+            (matrix->font_metrics[(unsigned char)(matrix->text2[i])] + KULM_CHARACTER_SPACING);
     }
     return ret;
 }

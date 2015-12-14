@@ -28,9 +28,13 @@ extern "C" {
 typedef struct kulm_matrix
 {
     uint8_t  a, b, c, d, oe, r1, stb, clk;
+
     int16_t width;
     int16_t height;
+
     uint8_t  *display_buffer;
+    char     **font;
+    char     *font_metrics;
     uint8_t  mask;
     bool     on;
     bool     paused;
@@ -53,7 +57,7 @@ typedef struct kulm_matrix
 
 
 int kulm_begin();
-kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height);
+kulm_matrix * const kulm_create(uint8_t *display_buffer, uint8_t width, uint8_t height, char **font, char *font_metrics);
 void kulm_destroy(kulm_matrix * const matrix);
 void kulm_init(kulm_matrix * const matrix,
               uint8_t a, uint8_t b, uint8_t c, uint8_t d,
