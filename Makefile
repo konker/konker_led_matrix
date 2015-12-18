@@ -1,16 +1,23 @@
 CC = gcc
 CFLAGS = -Wall -g -fno-builtin -Iinclude -lwiringPi -lm
-utilObjs = kulm.o
+utilObjsMatrix = kulm_matrix.o
+utilObjsSegment = kulm_segment.o
 
-libkulm.a: $(utilObjs)
-	ar rc $@ $(utilObjs)
+example: example.c libkulm.a
+	$(CC) $(CFLAGS) -o $@ $<
+
+libkulm.a: $(utilObjsMatrix) $(utilObjsSegment)
+	ar rc $@ $(utilObjsMatrix) $(utilObjsSegment)
 	ranlib $@
 
-$(utilObjs): kulm.c kulm.h
+$(utilObjsMatrix): kulm_matrix.c kulm_matrix.h
+	$(CC) $(CFLAGS) -c $<
+
+$(utilObjsSegment): kulm_segment.c kulm_segment.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o libkulm.a
+	rm -rf *.o libkulm.a example
 
-all: libkulm.a
+all: example
 .PHONY: all clean
