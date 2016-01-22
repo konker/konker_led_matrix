@@ -89,13 +89,11 @@ void kulm_mat_destroy(kulm_matrix * const matrix) {
 
 /** Initialize a matrix object with a set of fonts and a set of segments */
 void kulm_mat_init(kulm_matrix * const matrix,
-                   kulm_font font_list[],
-                   kulm_font_metrics font_metrics_list[],
+                   hexfont_list *font_list,
                    kulm_segment ** const segments,
                    uint16_t num_segments)
 {
     matrix->font_list = font_list;
-    matrix->font_metrics_list = font_metrics_list;
     matrix->segments = segments;
     matrix->num_segments = num_segments;
 
@@ -225,21 +223,19 @@ void kulm_mat_reverse(kulm_matrix *matrix) {
 }
 
 /** Set a region of pixels from a source sprite array */
-void kulm_mat_render_sprite(kulm_matrix *matrix, char *sprite, int16_t x, int16_t y, uint16_t w, uint16_t h) {
+void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y) {
     int16_t by, bx;
 
-    for (by=0; by<h; by++) {
-        for (bx=0; bx<w; bx++) {
+    for (by=0; by<sprite->height; by++) {
+        for (bx=0; bx<sprite->height; bx++) {
             int16_t _x = x+bx;
             int16_t _y = y+by;
+
             if (_x >= matrix->width || _x < 0) {
                 continue;
             }
 
-            uint8_t pixel8 = KULM_GET_PIXEL8(sprite, bx, by, w);
-            uint8_t b = (bx % KULM_BYTE_WIDTH);
-
-            if ((pixel8 << b) & 0x80) {
+            if (hexfont_get_pixel(sprite, bx, by)) {
                 kulm_mat_set_pixel(matrix, _x, _y);
             }
             else {

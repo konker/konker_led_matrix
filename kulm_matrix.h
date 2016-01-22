@@ -44,10 +44,8 @@ extern "C" {
 #endif
 
 #include "kulm_segment.h"
-
-// Typedefs for convenience
-typedef char** kulm_font_metrics;
-typedef char** kulm_font;
+#include "hexfont.h"
+#include "hexfont_list.h"
 
 // Forward declare kulm_segment because of circular refs
 typedef struct kulm_segment kulm_segment;
@@ -65,9 +63,9 @@ typedef struct kulm_matrix
     uint8_t  *display_buffer;
 
     // A list of available fonts and associated font-metrics
-    kulm_font          *font_list;
-    kulm_font_metrics  *font_metrics_list;
+    hexfont_list *font_list;
 
+    // Global matrix state flags
     bool     on;
     bool     paused;
 
@@ -95,8 +93,7 @@ void kulm_mat_destroy(kulm_matrix * const matrix);
 
 /** Initialize a matrix object with a set of fonts and a set of segments */
 void kulm_mat_init(kulm_matrix * const matrix,
-                   kulm_font font_list[],
-                   kulm_font_metrics font_metrics_list[],
+                   hexfont_list * const font_list,
                    kulm_segment ** const segments,
                    uint16_t num_segments);
 
@@ -134,7 +131,7 @@ void kulm_mat_off(kulm_matrix * const matrix);
 void kulm_mat_reverse(kulm_matrix * const matrix);
 
 /** Set a region of pixels from a source sprite array */
-void kulm_mat_render_sprite(kulm_matrix * const matrix, char *sprite, int16_t x, int16_t y, uint16_t w, uint16_t h);
+void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y);
 
 #ifdef __cplusplus
 }

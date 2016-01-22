@@ -33,12 +33,6 @@
 #define KULM_CHARACTER_HEIGHT 6
 #define KULM_CHARACTER_SPACING 1
 
-#define IDX_HEIGHT 0
-#define IDX_WIDTH 1
-
-#define KULM_SEG_FONT_SPRITE(seg, c) seg->matrix->font_list[seg->font_index][(unsigned char)c]
-#define KULM_SEG_FONT_METRICS_WIDTH(seg, c) seg->matrix->font_metrics_list[seg->font_index][IDX_WIDTH][(unsigned char)c]
-#define KULM_SEG_FONT_METRICS_HEIGHT(seg, c) seg->matrix->font_metrics_list[seg->font_index][IDX_HEIGHT][0]
 
 /** Create a segment object by */
 kulm_segment * const kulm_seg_create(
@@ -139,12 +133,13 @@ void kulm_seg_reverse(kulm_segment * const seg) {
 
 /** Render a single character */
 void kulm_seg_write_char(kulm_segment *seg, int16_t x, int16_t y, char c) {
+    hexfont * const font =
+        hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
+
     kulm_mat_render_sprite(
             seg->matrix,
-            KULM_SEG_FONT_SPRITE(seg, c),
-            x, y,
-            KULM_SEG_FONT_METRICS_WIDTH(seg, c),
-            KULM_SEG_FONT_METRICS_HEIGHT(seg, c));
+            hexfont_get(font, c),
+            x, y);
 }
 
 /** Set the segment's text content */
@@ -166,18 +161,22 @@ void kulm_set_text_speed(kulm_segment *seg, float speed) {
 void kulm_seg_render_text(kulm_segment *seg) {
     uint16_t width_accum = 0;
     int16_t i;
+    hexfont * const font =
+        hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
+
 
     for (i=0; i<seg->text_len; i++) {
         int16_t _x = seg->x + width_accum;
+        hexfont_character * const character = hexfont_get(font, seg->text[i]);
+
         if (_x < seg->width) {
             kulm_mat_render_sprite(
                     seg->matrix,
-                    KULM_SEG_FONT_SPRITE(seg, seg->text[i]),
-                    _x, seg->y,
-                    KULM_BYTE_WIDTH, KULM_CHARACTER_HEIGHT);
+                    character,
+                    _x, seg->y);
         }
         width_accum +=
-            (KULM_SEG_FONT_METRICS_WIDTH(seg, seg->text[i]) + KULM_CHARACTER_SPACING);
+            (character->width + KULM_CHARACTER_SPACING);
     }
 }
 
@@ -188,7 +187,7 @@ uint16_t kulm_seg_get_text_pixel_len(kulm_segment *seg) {
 
     for (i=0; i<seg->text_len; i++) {
         ret +=
-            (KULM_SEG_FONT_METRICS_WIDTH(seg, seg->text[i]) + KULM_CHARACTER_SPACING);
+            (KULM_SEG_FONT_METRICS_WIDTH(font_list, seg->text[i]) + KULM_CHARACTER_SPACING);
     }
     return ret;
 }
