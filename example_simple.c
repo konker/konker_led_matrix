@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "kulm_matrix.h"
 #include "kulm_segment.h"
@@ -62,11 +63,11 @@ int main() {
 
     kulm_mat_simple_init(example_matrix, example_font);
     kulm_mat_simple_set_text(example_matrix, "KONKER IS INVINCIBLE!!");
-    kulm_mat_simple_set_text_speed(example_matrix, 1.0);
+    kulm_mat_simple_set_text_speed(example_matrix, 3.0);
 
     // Call the animation driver for ten thousand frames
     int16_t j = 0;
-    for (j=0; j<10000; j++) {
+    for (j=0; j<10; j++) {
         // Update the animation
         kulm_mat_tick(example_matrix);
 
@@ -75,6 +76,7 @@ int main() {
 
 #ifdef NON_GPIO_MACHINE
         kulm_mat_dump_buffer(example_matrix);
+        sleep(1);
 #endif
     }
 

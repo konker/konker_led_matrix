@@ -183,9 +183,6 @@ void kulm_mat_scan(kulm_matrix *matrix) {
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
         uint8_t pixel8 = matrix->display_buffer[offset + x8];
 
-        // Apply the mask
-        pixel8 ^= matrix->mask;
-
         // Write each pixel in the byte, in reverse order
         shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);
     }
@@ -288,14 +285,6 @@ void kulm_mat_off(kulm_matrix *matrix) {
 #ifndef NON_GPIO_MACHINE
     digitalWrite(matrix->oe, HIGH);
 #endif
-}
-
-/** Reverse the matrix display */
-void kulm_mat_reverse(kulm_matrix *matrix) {
-    int16_t i;
-    for (i=0; i<matrix->num_segments; i++) {
-        kulm_seg_reverse(matrix->segments[i]);
-    }
 }
 
 /** Set a region of pixels from a source sprite array */

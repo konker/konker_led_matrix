@@ -54,7 +54,6 @@ kulm_segment * const kulm_seg_create(
     segment->height = height;
 
     segment->font_index = font_index;
-    segment->mask = 0xff;
     segment->visible = true;
     segment->on = true;
     segment->paused = false;
@@ -126,11 +125,6 @@ void kulm_seg_on(kulm_segment * const seg) {
 /** Swtich on display of the given segment */
 void kulm_seg_off(kulm_segment * const seg) {
     seg->on = false;
-}
-
-/** Reverse the display of the given segment */
-void kulm_seg_reverse(kulm_segment * const seg) {
-    seg->mask = ~seg->mask;
 }
 
 /** Set the segment's text content */

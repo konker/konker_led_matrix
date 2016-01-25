@@ -47,7 +47,6 @@ typedef struct kulm_segment
     int16_t height;
 
     uint8_t  font_index;
-    uint8_t  mask;
     bool     visible;
     bool     on;
     bool     paused;
@@ -97,9 +96,6 @@ void kulm_seg_on(kulm_segment * const seg);
 
 /** Swtich on display of the given segment */
 void kulm_seg_off(kulm_segment * const seg);
-
-/** Reverse the display of the given segment */
-void kulm_seg_reverse(kulm_segment * const seg);
 
 /** Set the segment's text content */
 uint16_t kulm_seg_set_text(kulm_segment * const seg, const char *text);

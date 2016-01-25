@@ -142,9 +142,6 @@ void kulm_mat_on(kulm_matrix * const matrix);
 /** Switch on matrix display */
 void kulm_mat_off(kulm_matrix * const matrix);
 
-/** Reverse the matrix display */
-void kulm_mat_reverse(kulm_matrix * const matrix);
-
 /** Set a region of pixels from a source sprite array */
 void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1);
 
