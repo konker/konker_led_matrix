@@ -49,6 +49,18 @@ extern "C" {
 #include "hexfont.h"
 #include "hexfont_list.h"
 
+// Macros for convenience
+#define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
+#define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/8)
+#define KULM_BUF_INDEX(matrix, x, y) ((y*matrix->width + x) + KULM_BYTE_WIDTH - ((y*matrix->width + x) % KULM_BYTE_WIDTH))/KULM_BYTE_WIDTH
+#define KULM_GET_PIXEL8(buf, x, y, w) buf[KULM_BUF_INDEX(x, y, w)];
+
+// Symbolic constants
+#define KULM_BYTE_WIDTH 8
+#define KULM_CHARACTER_HEIGHT 6
+#define KULM_CHARACTER_SPACING 1
+
+
 // Forward declare kulm_segment because of circular refs
 typedef struct kulm_segment kulm_segment;
 
@@ -109,26 +121,14 @@ uint16_t kulm_mat_simple_set_text(kulm_matrix * const matrix, const char *text);
 /** Set the animation scroll speed of the default full-screen segment in pixels per frame */
 void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed);
 
-/** Drive the matrix display */
-void kulm_mat_scan(kulm_matrix * const matrix);
-
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix * const matrix);
-
-/** Switch a matrix pixel on */
-void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
-
-/** Switch a matrix pixel off */
-void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 
 /** Query whether or not the given pixel has been set */
 bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y);
 
 /** Clear the entire matrix */
 void kulm_mat_clear(kulm_matrix * const matrix);
-
-/** Clear a region of the matrix */
-void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
 
 /** Start animation of matrix content */
 void kulm_mat_start(kulm_matrix * const matrix);
@@ -142,11 +142,81 @@ void kulm_mat_on(kulm_matrix * const matrix);
 /** Switch on matrix display */
 void kulm_mat_off(kulm_matrix * const matrix);
 
+/** Print a representation of the display buffer to the console */
+void kulm_mat_dump_buffer(kulm_matrix * const matrix);
+
 /** Set a region of pixels from a source sprite array */
 void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1);
 
-/** Print a representation of the display buffer to the console */
-void kulm_mat_dump_buffer(kulm_matrix * const matrix);
+// Inline funtions
+// ----------------------------------------------------------------------------
+
+/** Switch a matrix pixel on */
+inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
+    size_t p = KULM_BUF_OFFSET(matrix, x, y);
+    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 1);
+}
+
+/** Switch a matrix pixel off */
+inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
+    size_t p = KULM_BUF_OFFSET(matrix, x, y);
+    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 0);
+}
+
+/** Clear a region of the matrix */
+inline void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h) {
+    int16_t by, bx;
+    for (by=0; by<h; by++) {
+        for (bx=0; bx<w; bx++) {
+            int16_t _x = x + bx;
+            int16_t _y = y + by;
+
+            kulm_mat_clear_pixel(matrix, _x, _y);
+        }
+    }
+}
+
+/** Drive the matrix display */
+inline void kulm_mat_scan(kulm_matrix * const matrix) {
+    if (!matrix->on) return;
+
+#ifndef NON_GPIO_MACHINE
+    // Process each 8-pixel byte in the row
+    uint8_t offset = KULM_ROW_OFFSET(matrix, matrix->_scan_row);
+
+    // Process the row in reverse order
+    int16_t x8;
+    for (x8=matrix->_row_width-1; x8>=0; x8--) {
+        uint8_t pixel8 = matrix->display_buffer[offset + x8];
+
+        // Write each pixel in the byte, in reverse order
+        shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);
+    }
+
+    // Disable display
+    digitalWrite(matrix->oe, HIGH);
+
+    // Display the rows in reverse order
+    uint16_t display_row = (matrix->height - 1 - matrix->_scan_row);
+
+    // Select row
+    digitalWrite(matrix->a, (display_row & 0x01));
+    digitalWrite(matrix->b, (display_row & 0x02));
+    digitalWrite(matrix->c, (display_row & 0x04));
+    digitalWrite(matrix->d, (display_row & 0x08));
+
+    // Latch data
+    digitalWrite(matrix->stb, LOW);
+    digitalWrite(matrix->stb, HIGH);
+    digitalWrite(matrix->stb, LOW);
+
+    // Enable display
+    digitalWrite(matrix->oe, LOW);
+
+    // Next row, wrap around at the bottom
+    matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
+#endif
+}
 
 #ifdef __cplusplus
 }

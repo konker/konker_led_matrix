@@ -29,18 +29,12 @@
 #include "kulm_matrix.h"
 #include "kulm_segment.h"
 
-// Macros for convenience
-#define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
-#define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/8)
-#define KULM_BUF_INDEX(matrix, x, y) ((y*matrix->width + x) + KULM_BYTE_WIDTH - ((y*matrix->width + x) % KULM_BYTE_WIDTH))/KULM_BYTE_WIDTH
-#define KULM_GET_PIXEL8(buf, x, y, w) buf[KULM_BUF_INDEX(x, y, w)];
-
-// Symbolic constants
-#define KULM_BYTE_WIDTH 8
-#define KULM_CHARACTER_HEIGHT 6
-#define KULM_CHARACTER_SPACING 1
-
 void _kulm_mat_sanity_check(kulm_matrix * const matrix);
+
+extern inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
+extern inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
+extern inline void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
+extern inline void kulm_mat_scan(kulm_matrix * const matrix);
 
 /**
  * Create a new matrix
@@ -171,6 +165,7 @@ void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed) {
 }
 
 /** Drive the matrix display */
+/*[XXX: inline]
 void kulm_mat_scan(kulm_matrix *matrix) {
     if (!matrix->on) return;
 
@@ -211,6 +206,7 @@ void kulm_mat_scan(kulm_matrix *matrix) {
     matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
 #endif
 }
+*/
 
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
@@ -223,16 +219,20 @@ void kulm_mat_tick(kulm_matrix *matrix) {
 }
 
 /** Switch a matrix pixel on */
+/*[XXX: inline]
 void kulm_mat_set_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
     bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 1);
 }
+*/
 
 /** Switch a matrix pixel off */
+/*[XXX: inline]
 void kulm_mat_clear_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
     bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 0);
 }
+*/
 
 /** Query whether or not the given pixel has been set */
 bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
@@ -252,6 +252,7 @@ void kulm_mat_clear(kulm_matrix *matrix) {
 }
 
 /** Clear a region of the matrix */
+/*[XXX: inline]
 void kulm_mat_clear_region(kulm_matrix *matrix, int16_t x, int16_t y, uint16_t w, uint16_t h) {
     int16_t by, bx;
     for (by=0; by<h; by++) {
@@ -263,6 +264,7 @@ void kulm_mat_clear_region(kulm_matrix *matrix, int16_t x, int16_t y, uint16_t w
         }
     }
 }
+*/
 
 /** Start animation of matrix content */
 void kulm_mat_start(kulm_matrix *matrix) {
