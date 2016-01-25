@@ -158,8 +158,11 @@ void kulm_seg_render_text(kulm_segment *seg) {
         int16_t _x = seg->x + seg->text_pos + width_accum;
         hexfont_character * const c = hexfont_get(font, seg->text[i]);
 
-        if (_x < seg->width) {
-            kulm_mat_render_sprite(seg->matrix, c, _x, seg->y);
+        if (_x < seg->x + seg->width) {
+            kulm_mat_render_sprite(seg->matrix, c,
+                                   _x, seg->y,
+                                   seg->x, seg->x + seg->width,
+                                   seg->y, seg->y + seg->height);
         }
         width_accum +=
             (c->width + KULM_CHARACTER_SPACING);

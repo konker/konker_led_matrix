@@ -146,7 +146,7 @@ void kulm_mat_off(kulm_matrix * const matrix);
 void kulm_mat_reverse(kulm_matrix * const matrix);
 
 /** Set a region of pixels from a source sprite array */
-void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y);
+void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1);
 
 /** Print a representation of the display buffer to the console */
 void kulm_mat_dump_buffer(kulm_matrix * const matrix);

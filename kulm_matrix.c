@@ -299,29 +299,29 @@ void kulm_mat_reverse(kulm_matrix *matrix) {
 }
 
 /** Set a region of pixels from a source sprite array */
-void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y) {
+void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1) {
 
-    //printf(" render sprite: %d,%d %d,%d\n", x, y, sprite->height, sprite->width);
     int16_t by, bx;
     for (by=0; by<sprite->height; by++) {
         for (bx=0; bx<sprite->width; bx++) {
             int16_t _x = x + bx;
             int16_t _y = y + by;
 
-            if (_x >= matrix->width || _x < 0 || _y >= matrix->height || _y < 0) {
+            if (_x < clip_x0 ||
+                _x >= clip_x1 ||
+                _y < clip_y0 ||
+                _y >= clip_y1)
+            {
                 continue;
             }
 
             if (hexfont_get_pixel(sprite, bx, by)) {
-//printf("#");
                 kulm_mat_set_pixel(matrix, _x, _y);
             }
             else {
-//printf("-");
                 kulm_mat_clear_pixel(matrix, _x, _y);
             }
         }
-//printf("\n");
     }
 }
 
