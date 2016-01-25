@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "kulm_matrix.h"
 #include "kulm_segment.h"
@@ -38,12 +39,12 @@ int main() {
 
     // Initialize WirinPi if necessary
 #ifndef ARDUINO
-#ifndef NON_GPIO_MACHINE
+#  ifndef NON_GPIO_MACHINE
     if (wiringPiSetup()) {
         printf("ERROR Initializing WiringPi. Exiting.");
         return -1;
     }
-#endif
+#  endif
 #endif
     uint8_t example_display_buffer[
                     EXAMPLE_MATRIX_HEIGHT *
@@ -64,37 +65,22 @@ int main() {
 
     // Create some segments
     kulm_segment *example_segments[2];
-    /*
     example_segments[0] = kulm_seg_create(
-                        example_matrix,
-                        0, 0,
-                        EXAMPLE_MATRIX_WIDTH,
-                        EXAMPLE_MATRIX_HEIGHT/2,
-                        0);
+                                example_matrix,
+                                0,
+                                0,
+                                EXAMPLE_MATRIX_WIDTH/2,
+                                EXAMPLE_MATRIX_HEIGHT,
+                                0);
 
     example_segments[1] = kulm_seg_create(
-                        example_matrix,
-                        0, EXAMPLE_MATRIX_HEIGHT/2,
-                        EXAMPLE_MATRIX_WIDTH,
-                        EXAMPLE_MATRIX_HEIGHT/2,
-                        0);
-    */
+                                example_matrix,
+                                EXAMPLE_MATRIX_WIDTH/2 + 4,
+                                0,
+                                EXAMPLE_MATRIX_WIDTH/2 - 4,
+                                EXAMPLE_MATRIX_HEIGHT,
+                                0);
 
-    example_segments[0] = kulm_seg_create(
-                        example_matrix,
-                        0,
-                        0,
-                        EXAMPLE_MATRIX_WIDTH/2,
-                        EXAMPLE_MATRIX_HEIGHT,
-                        0);
-
-    example_segments[1] = kulm_seg_create(
-                        example_matrix,
-                        EXAMPLE_MATRIX_WIDTH/2,
-                        0,
-                        EXAMPLE_MATRIX_WIDTH/2,
-                        EXAMPLE_MATRIX_HEIGHT,
-                        0);
     // Initialize the matrix with the example segments and fonts
     kulm_mat_init(
             example_matrix,
@@ -104,15 +90,15 @@ int main() {
 
     // Set some text in segment 0
     kulm_seg_set_text(example_segments[0], "KONKER");
-    kulm_seg_set_text_speed(example_segments[0], 2);
+    kulm_seg_set_text_speed(example_segments[0], 6.0);
 
-    // Set some text in segment 0
-    kulm_seg_set_text(example_segments[1], "IS INVINCIBLE!");
-    kulm_seg_set_text_speed(example_segments[1], 1);
+    // Set some text in segment 1
+    kulm_seg_set_text(example_segments[1], "INVINCIBLE!");
+    kulm_seg_set_text_speed(example_segments[1], 3.0);
 
     // Call the animation driver for ten thousand frames
     int16_t j = 0;
-    for (j=0; j<10000; j++) {
+    for (j=0; j<10; j++) {
         // Update the animation
         kulm_mat_tick(example_matrix);
 
@@ -121,6 +107,7 @@ int main() {
 
 #ifdef NON_GPIO_MACHINE
         kulm_mat_dump_buffer(example_matrix);
+        sleep(1);
 #endif
     }
 
