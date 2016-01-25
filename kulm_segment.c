@@ -130,19 +130,7 @@ void kulm_seg_off(kulm_segment * const seg) {
 
 /** Reverse the display of the given segment */
 void kulm_seg_reverse(kulm_segment * const seg) {
-    //[TODO]
-}
-
-
-/** Render a single character */
-void kulm_seg_write_char(kulm_segment *seg, int16_t x, int16_t y, char c) {
-    hexfont * const font =
-        hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
-
-    kulm_mat_render_sprite(
-            seg->matrix,
-            hexfont_get(font, c),
-            x, y);
+    seg->mask = ~seg->mask;
 }
 
 /** Set the segment's text content */

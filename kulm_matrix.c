@@ -183,10 +183,8 @@ void kulm_mat_scan(kulm_matrix *matrix) {
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
         uint8_t pixel8 = matrix->display_buffer[offset + x8];
 
-        /*[XXX: remove]
         // Apply the mask
         pixel8 ^= matrix->mask;
-        */
 
         // Write each pixel in the byte, in reverse order
         shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);
@@ -230,14 +228,12 @@ void kulm_mat_tick(kulm_matrix *matrix) {
 /** Switch a matrix pixel on */
 void kulm_mat_set_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    //fprintf(stdout, "set pixel: (%d,%d) -> [%d,%d]\n", x, y, p, x % KULM_BYTE_WIDTH);
     bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 1);
 }
 
 /** Switch a matrix pixel off */
 void kulm_mat_clear_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    //fprintf(stdout, "clr pixel: (%d,%d) -> [%d,%d]\n", x, y, p, x % KULM_BYTE_WIDTH);
     bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 0);
 }
 
@@ -344,14 +340,6 @@ void _kulm_mat_sanity_check(kulm_matrix * const matrix) {
 }
 
 void kulm_mat_dump_buffer(kulm_matrix * const matrix) {
-    /*
-    int16_t i;
-    for (i=0; i<matrix->height*matrix->_row_width; i++) {
-        printf("%02x ", matrix->display_buffer[i]);
-    }
-    printf("\n");
-    */
-
     int16_t x, y;
     for (y=0; y<matrix->height; y++) {
         for (x=0; x<matrix->width; x++) {
