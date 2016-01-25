@@ -22,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
@@ -31,7 +32,7 @@
 // Macros for convenience
 #define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
 #define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/8)
-#define KULM_BUF_INDEX(x, y, w) (y*w + x)/KULM_BYTE_WIDTH
+#define KULM_BUF_INDEX(matrix, x, y) ((y*matrix->width + x) + KULM_BYTE_WIDTH - ((y*matrix->width + x) % KULM_BYTE_WIDTH))/KULM_BYTE_WIDTH
 #define KULM_GET_PIXEL8(buf, x, y, w) buf[KULM_BUF_INDEX(x, y, w)];
 
 // Symbolic constants
@@ -39,6 +40,7 @@
 #define KULM_CHARACTER_HEIGHT 6
 #define KULM_CHARACTER_SPACING 1
 
+void _kulm_mat_sanity_check(kulm_matrix * const matrix);
 
 /**
  * Create a new matrix
@@ -78,12 +80,27 @@ kulm_matrix * const kulm_mat_create(
     matrix->paused = false;
     matrix->_scan_row = 0;
 
+    matrix->_default = false;
+
     return matrix;
 }
 
 /** Clean up a matrix object */
 void kulm_mat_destroy(kulm_matrix * const matrix) {
-    // Free dynamically allocated memory
+    // Clean up the font list
+    hexfont_list_destroy(matrix->font_list);
+
+    // Clean up the segments
+    int16_t i;
+    for (i=0; i<matrix->num_segments; i++) {
+        kulm_seg_destroy(matrix->segments[i]);
+    }
+
+    if (matrix->_default) {
+        free(matrix->segments);
+    }
+
+    // Free dynamically allocated memory for the matrix itself
     free(matrix);
 }
 
@@ -97,6 +114,7 @@ void kulm_mat_init(kulm_matrix * const matrix,
     matrix->segments = segments;
     matrix->num_segments = num_segments;
 
+#ifndef NON_GPIO_MACHINE
     // Initilize pin modes
     pinMode(matrix->a, OUTPUT);
     pinMode(matrix->b, OUTPUT);
@@ -106,12 +124,57 @@ void kulm_mat_init(kulm_matrix * const matrix,
     pinMode(matrix->r1, OUTPUT);
     pinMode(matrix->clk, OUTPUT);
     pinMode(matrix->stb, OUTPUT);
+#endif
+
+    kulm_mat_clear(matrix);
+
+    _kulm_mat_sanity_check(matrix);
+}
+
+/** Initialize a matrix object with the given font. A full-screen segment will be automatically created */
+void kulm_mat_simple_init(kulm_matrix * const matrix, hexfont * const font) {
+    // Create a font list containing the given font
+    hexfont_list *_default_font_list =
+                            hexfont_list_create(font);
+
+    // Allocate a segments array with one item
+    kulm_segment ** const _default_segments =
+                            calloc(1, sizeof(*matrix->segments));
+
+    // Create a single full-screen segment
+    _default_segments[0] =
+                                kulm_seg_create(
+                                    matrix,
+                                    0, 0,
+                                    matrix->width,
+                                    matrix->height,
+                                    0);
+
+    // Initialize the matrix with the default font list and segment
+    kulm_mat_init(
+            matrix,
+            _default_font_list,
+            _default_segments,
+            1);
+
+    matrix->_default = true;
+}
+
+/** Set the default full-screen segment's text content */
+uint16_t kulm_mat_simple_set_text(kulm_matrix * const matrix, const char *text) {
+    return kulm_seg_set_text(matrix->segments[0], text);
+}
+
+/** Set the animation scroll speed of the default full-screen segment in pixels per frame */
+void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed) {
+    kulm_seg_set_text_speed(matrix->segments[0], speed);
 }
 
 /** Drive the matrix display */
 void kulm_mat_scan(kulm_matrix *matrix) {
     if (!matrix->on) return;
 
+#ifndef NON_GPIO_MACHINE
     // Process each 8-pixel byte in the row
     uint8_t offset = KULM_ROW_OFFSET(matrix, matrix->_scan_row);
 
@@ -151,6 +214,7 @@ void kulm_mat_scan(kulm_matrix *matrix) {
 
     // Next row, wrap around at the bottom
     matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
+#endif
 }
 
 /** Drive animation */
@@ -165,12 +229,25 @@ void kulm_mat_tick(kulm_matrix *matrix) {
 
 /** Switch a matrix pixel on */
 void kulm_mat_set_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
-    bitWrite(matrix->display_buffer[KULM_BUF_OFFSET(matrix, x, y)], x % KULM_BYTE_WIDTH, 1);
+    size_t p = KULM_BUF_OFFSET(matrix, x, y);
+    //fprintf(stdout, "set pixel: (%d,%d) -> [%d,%d]\n", x, y, p, x % KULM_BYTE_WIDTH);
+    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 1);
 }
 
 /** Switch a matrix pixel off */
 void kulm_mat_clear_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
-    bitWrite(matrix->display_buffer[KULM_BUF_OFFSET(matrix, x, y)], x % KULM_BYTE_WIDTH, 0);
+    size_t p = KULM_BUF_OFFSET(matrix, x, y);
+    //fprintf(stdout, "clr pixel: (%d,%d) -> [%d,%d]\n", x, y, p, x % KULM_BYTE_WIDTH);
+    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 0);
+}
+
+/** Query whether or not the given pixel has been set */
+bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
+    size_t p = KULM_BUF_OFFSET(matrix, x, y);
+    if (bitRead(matrix->display_buffer[p], x % KULM_BYTE_WIDTH)) {
+        return true;
+    }
+    return false;
 }
 
 /** Clear the entire matrix */
@@ -184,11 +261,12 @@ void kulm_mat_clear(kulm_matrix *matrix) {
 /** Clear a region of the matrix */
 void kulm_mat_clear_region(kulm_matrix *matrix, int16_t x, int16_t y, uint16_t w, uint16_t h) {
     int16_t by, bx;
-
     for (by=0; by<h; by++) {
         for (bx=0; bx<w; bx++) {
-            int16_t X = x+bx;
-            kulm_mat_clear_pixel(matrix, X, y+by);
+            int16_t _x = x + bx;
+            int16_t _y = y + by;
+
+            kulm_mat_clear_pixel(matrix, _x, _y);
         }
     }
 }
@@ -211,7 +289,9 @@ void kulm_mat_on(kulm_matrix *matrix) {
 /** Switch on matrix display */
 void kulm_mat_off(kulm_matrix *matrix) {
     matrix->on = false;
+#ifndef NON_GPIO_MACHINE
     digitalWrite(matrix->oe, HIGH);
+#endif
 }
 
 /** Reverse the matrix display */
@@ -224,24 +304,66 @@ void kulm_mat_reverse(kulm_matrix *matrix) {
 
 /** Set a region of pixels from a source sprite array */
 void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y) {
+
+    //printf(" render sprite: %d,%d %d,%d\n", x, y, sprite->height, sprite->width);
     int16_t by, bx;
-
     for (by=0; by<sprite->height; by++) {
-        for (bx=0; bx<sprite->height; bx++) {
-            int16_t _x = x+bx;
-            int16_t _y = y+by;
+        for (bx=0; bx<sprite->width; bx++) {
+            int16_t _x = x + bx;
+            int16_t _y = y + by;
 
-            if (_x >= matrix->width || _x < 0) {
+            if (_x >= matrix->width || _x < 0 || _y >= matrix->height || _y < 0) {
                 continue;
             }
 
             if (hexfont_get_pixel(sprite, bx, by)) {
+//printf("#");
                 kulm_mat_set_pixel(matrix, _x, _y);
             }
             else {
+//printf("-");
                 kulm_mat_clear_pixel(matrix, _x, _y);
             }
         }
+//printf("\n");
     }
+}
+
+void _kulm_mat_sanity_check(kulm_matrix * const matrix) {
+    // Check that segments are within the bounds of the matrix
+    //[TODO]
+
+    // Check that segments do not overlap
+    //[TODO]]
+
+    // Check that font references exist in font list
+    //[TODO]
+
+    // Check that font sizes fit within segments
+    //[TODO]
+}
+
+void kulm_mat_dump_buffer(kulm_matrix * const matrix) {
+    /*
+    int16_t i;
+    for (i=0; i<matrix->height*matrix->_row_width; i++) {
+        printf("%02x ", matrix->display_buffer[i]);
+    }
+    printf("\n");
+    */
+
+    int16_t x, y;
+    for (y=0; y<matrix->height; y++) {
+        for (x=0; x<matrix->width; x++) {
+            if (kulm_mat_is_pixel_set(matrix, x, y)) {
+                printf("# ");
+            }
+            else {
+                printf(". ");
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 

@@ -34,8 +34,10 @@ extern "C" {
 #ifdef ARDUINO
 #  include <Arduino.h>
 #else
-#  include <wiringPi.h>
-#  include <wiringShift.h>
+#  ifndef NON_GPIO_MACHINE
+#    include <wiringPi.h>
+#    include <wiringShift.h>
+#  endif
 // Why aren't these in wiringPi?
 #  define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #  define bitSet(value, bit) ((value) |= (1UL << (bit)))
@@ -76,6 +78,7 @@ typedef struct kulm_matrix
     // Internal vars
     uint16_t _row_width;
     uint16_t _scan_row;
+    bool _default;
 
 } kulm_matrix;
 
@@ -97,6 +100,15 @@ void kulm_mat_init(kulm_matrix * const matrix,
                    kulm_segment ** const segments,
                    uint16_t num_segments);
 
+/** Initialize a matrix object with the given font. A full-screen segment will be automatically created */
+void kulm_mat_simple_init(kulm_matrix * const matrix, hexfont * const font);
+
+/** Set the default full-screen segment's text content */
+uint16_t kulm_mat_simple_set_text(kulm_matrix * const matrix, const char *text);
+
+/** Set the animation scroll speed of the default full-screen segment in pixels per frame */
+void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed);
+
 /** Drive the matrix display */
 void kulm_mat_scan(kulm_matrix * const matrix);
 
@@ -108,6 +120,9 @@ void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 
 /** Switch a matrix pixel off */
 void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
+
+/** Query whether or not the given pixel has been set */
+bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y);
 
 /** Clear the entire matrix */
 void kulm_mat_clear(kulm_matrix * const matrix);
@@ -132,6 +147,9 @@ void kulm_mat_reverse(kulm_matrix * const matrix);
 
 /** Set a region of pixels from a source sprite array */
 void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y);
+
+/** Print a representation of the display buffer to the console */
+void kulm_mat_dump_buffer(kulm_matrix * const matrix);
 
 #ifdef __cplusplus
 }

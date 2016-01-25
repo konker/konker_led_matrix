@@ -38,12 +38,12 @@ int main() {
 
     // Initialize WirinPi if necessary
 #ifndef ARDUINO
-#ifndef NON_GPIO_MACHINE
+#  ifndef NON_GPIO_MACHINE
     if (wiringPiSetup()) {
         printf("ERROR Initializing WiringPi. Exiting.");
         return -1;
     }
-#endif
+#  endif
 #endif
     uint8_t example_display_buffer[
                     EXAMPLE_MATRIX_HEIGHT *
@@ -59,56 +59,10 @@ int main() {
 
     // Initialize some font(s)
     hexfont * const example_font = hexfont_load_data(konker_hexfont_basic, 16);
-    hexfont_list *example_font_list =
-                        hexfont_list_create(example_font);
 
-    // Create some segments
-    kulm_segment *example_segments[2];
-    /*
-    example_segments[0] = kulm_seg_create(
-                        example_matrix,
-                        0, 0,
-                        EXAMPLE_MATRIX_WIDTH,
-                        EXAMPLE_MATRIX_HEIGHT/2,
-                        0);
-
-    example_segments[1] = kulm_seg_create(
-                        example_matrix,
-                        0, EXAMPLE_MATRIX_HEIGHT/2,
-                        EXAMPLE_MATRIX_WIDTH,
-                        EXAMPLE_MATRIX_HEIGHT/2,
-                        0);
-    */
-
-    example_segments[0] = kulm_seg_create(
-                        example_matrix,
-                        0,
-                        0,
-                        EXAMPLE_MATRIX_WIDTH/2,
-                        EXAMPLE_MATRIX_HEIGHT,
-                        0);
-
-    example_segments[1] = kulm_seg_create(
-                        example_matrix,
-                        EXAMPLE_MATRIX_WIDTH/2,
-                        0,
-                        EXAMPLE_MATRIX_WIDTH/2,
-                        EXAMPLE_MATRIX_HEIGHT,
-                        0);
-    // Initialize the matrix with the example segments and fonts
-    kulm_mat_init(
-            example_matrix,
-            example_font_list,
-            example_segments,
-            2);
-
-    // Set some text in segment 0
-    kulm_seg_set_text(example_segments[0], "KONKER");
-    kulm_seg_set_text_speed(example_segments[0], 2);
-
-    // Set some text in segment 0
-    kulm_seg_set_text(example_segments[1], "IS INVINCIBLE!");
-    kulm_seg_set_text_speed(example_segments[1], 1);
+    kulm_mat_simple_init(example_matrix, example_font);
+    kulm_mat_simple_set_text(example_matrix, "KONKER IS INVINCIBLE!!");
+    kulm_mat_simple_set_text_speed(example_matrix, 1.0);
 
     // Call the animation driver for ten thousand frames
     int16_t j = 0;

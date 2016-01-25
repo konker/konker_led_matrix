@@ -56,9 +56,9 @@ typedef struct kulm_segment
     uint16_t text_len;
     float    text_speed;
     float    text_pos;
-    float    text_pixel_len;
 
     uint16_t _row_width;
+    float    _text_pixel_len;
 
 } kulm_segment;
 

@@ -22,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
@@ -54,19 +55,21 @@ kulm_segment * const kulm_seg_create(
 
     segment->font_index = font_index;
     segment->mask = 0xff;
+    segment->visible = true;
     segment->on = true;
     segment->paused = false;
 
-    int i;
     segment->text_len = 0;
     segment->text_speed = 0;
     segment->text_pos = 0;
-    segment->text_pixel_len = 0;
+
+    int i;
     for (i=0; i<KULM_TEXT_LEN; i++) {
         segment->text[i] = 0x0;
     }
 
     segment->_row_width = (width / KULM_BYTE_WIDTH);
+    segment->_text_pixel_len = 0;
 
     return segment;
 }
@@ -82,10 +85,10 @@ void kulm_seg_tick(kulm_segment * const seg) {
 
     // Animate and render text
     seg->text_pos -= seg->text_speed;
-    if (seg->text_pos < -seg->text_pixel_len) {
+    if (seg->text_pos < -seg->_text_pixel_len) {
         seg->text_pos = seg->width;
-        kulm_seg_clear(seg);
     }
+    kulm_seg_clear(seg);
     kulm_seg_render_text(seg);
 }
 
@@ -146,49 +149,45 @@ void kulm_seg_write_char(kulm_segment *seg, int16_t x, int16_t y, char c) {
 uint16_t kulm_seg_set_text(kulm_segment *seg, const char *text) {
     strcpy(seg->text, text);
     seg->text_len = strlen(seg->text);
-    /*[XXX: what is this for again?]
     seg->_text_pixel_len = kulm_seg_get_text_pixel_len(seg);
-    */
-    return seg->text_pixel_len;
+
+    return seg->_text_pixel_len;
 }
 
 /** Set the animation scroll speed of the segment in pixels per frame */
-void kulm_set_text_speed(kulm_segment *seg, float speed) {
+void kulm_seg_set_text_speed(kulm_segment *seg, float speed) {
     seg->text_speed = speed;
 }
 
 /** Render the segment's text */
 void kulm_seg_render_text(kulm_segment *seg) {
     uint16_t width_accum = 0;
-    int16_t i;
     hexfont * const font =
         hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
 
-
+    int16_t i;
     for (i=0; i<seg->text_len; i++) {
-        int16_t _x = seg->x + width_accum;
-        hexfont_character * const character = hexfont_get(font, seg->text[i]);
+        int16_t _x = seg->x + seg->text_pos + width_accum;
+        hexfont_character * const c = hexfont_get(font, seg->text[i]);
 
         if (_x < seg->width) {
-            kulm_mat_render_sprite(
-                    seg->matrix,
-                    character,
-                    _x, seg->y);
+            kulm_mat_render_sprite(seg->matrix, c, _x, seg->y);
         }
         width_accum +=
-            (character->width + KULM_CHARACTER_SPACING);
+            (c->width + KULM_CHARACTER_SPACING);
     }
 }
 
-/*[XXX: what is this for again?]
-uint16_t kulm_seg_get_text_pixel_len(kulm_segment *seg) {
+uint16_t kulm_seg_get_text_pixel_len(kulm_segment * const seg) {
     uint16_t ret = 0;
-    int16_t i;
+    hexfont * const font =
+        hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
 
+    int16_t i;
     for (i=0; i<seg->text_len; i++) {
+        hexfont_character * const c = hexfont_get(font, seg->text[i]);
         ret +=
-            (KULM_SEG_FONT_METRICS_WIDTH(font_list, seg->text[i]) + KULM_CHARACTER_SPACING);
+            (c->width + KULM_CHARACTER_SPACING);
     }
     return ret;
 }
-*/
