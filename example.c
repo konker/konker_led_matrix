@@ -106,7 +106,7 @@ int main() {
         kulm_mat_scan(example_matrix);
 
 #ifdef NON_GPIO_MACHINE
-        kulm_mat_dump_buffer(example_matrix);
+        kulm_mat_dump_buffer(example_matrix, stdout);
         sleep(1);
 #endif
     }

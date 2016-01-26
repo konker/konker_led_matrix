@@ -52,8 +52,6 @@ extern "C" {
 // Macros for convenience
 #define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
 #define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/8)
-#define KULM_BUF_INDEX(matrix, x, y) ((y*matrix->width + x) + KULM_BYTE_WIDTH - ((y*matrix->width + x) % KULM_BYTE_WIDTH))/KULM_BYTE_WIDTH
-#define KULM_GET_PIXEL8(buf, x, y, w) buf[KULM_BUF_INDEX(x, y, w)];
 
 // Symbolic constants
 #define KULM_BYTE_WIDTH 8
@@ -143,7 +141,7 @@ void kulm_mat_on(kulm_matrix * const matrix);
 void kulm_mat_off(kulm_matrix * const matrix);
 
 /** Print a representation of the display buffer to the console */
-void kulm_mat_dump_buffer(kulm_matrix * const matrix);
+void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp);
 
 /** Set a region of pixels from a source sprite array */
 void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1);

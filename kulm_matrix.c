@@ -330,19 +330,25 @@ void _kulm_mat_sanity_check(kulm_matrix * const matrix) {
     //[TODO]
 }
 
-void kulm_mat_dump_buffer(kulm_matrix * const matrix) {
+void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
+    int16_t i;
+    for (i=0; i<matrix->height*matrix->_row_width; i++) {
+        fprintf(fp, "%02x ", matrix->display_buffer[i]);
+    }
+    fprintf(fp, "\n");
+
     int16_t x, y;
     for (y=0; y<matrix->height; y++) {
         for (x=0; x<matrix->width; x++) {
             if (kulm_mat_is_pixel_set(matrix, x, y)) {
-                printf("# ");
+                fprintf(fp, "# ");
             }
             else {
-                printf(". ");
+                fprintf(fp, ". ");
             }
         }
-        printf("\n");
+        fprintf(fp, "\n");
     }
-    printf("\n");
+    fprintf(fp, "\n");
 }
 
