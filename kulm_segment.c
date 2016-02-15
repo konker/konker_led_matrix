@@ -160,7 +160,7 @@ void kulm_seg_render_text(kulm_segment *seg) {
 
     int16_t i;
     for (i=0; i<seg->text_len; i++) {
-        int16_t _x = seg->x + seg->text_pos + width_accum;
+        int16_t _x = (seg->x + (int16_t)seg->text_pos + width_accum);
         hexfont_character * const c = hexfont_get(font, seg->text[i]);
 
         if (_x < seg->x + seg->width) {
