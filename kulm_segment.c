@@ -165,6 +165,9 @@ void kulm_seg_render_text(kulm_segment *seg) {
     for (i=0; i<seg->text_len; i++) {
         int16_t _x = (seg->x + (int16_t)seg->text_pos + width_accum);
         hexfont_character * const c = hexfont_get(font, seg->text[i]);
+        if (c == NULL) {
+            continue;
+        }
 
         if (_x < seg->x + seg->width) {
             kulm_mat_render_sprite(seg->matrix,
@@ -186,6 +189,10 @@ uint16_t kulm_seg_get_text_pixel_len(kulm_segment * const seg) {
     int16_t i;
     for (i=0; i<seg->text_len; i++) {
         hexfont_character * const c = hexfont_get(font, seg->text[i]);
+        if (c == NULL) {
+            continue;
+        }
+
         ret +=
             (c->width + KULM_CHARACTER_SPACING);
     }
