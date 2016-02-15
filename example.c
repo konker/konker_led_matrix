@@ -114,9 +114,9 @@ int main() {
     kulm_seg_set_text(example_segments[1], "INVINCIBLE!");
     kulm_seg_set_text_speed(example_segments[1], 3.0);
 
-    // Call the animation driver for ten thousand frames
+    // Call the animation driver for a while
     int16_t j = 0;
-    for (j=0; j<10; j++) {
+    for (j=0; j<50000; j++) {
         // Update the animation
         kulm_mat_tick(example_matrix);
 
