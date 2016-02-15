@@ -32,4 +32,5 @@
 *.dSYM/
 
 # Project specific
-led-o-maticd
+example
+example_simple
