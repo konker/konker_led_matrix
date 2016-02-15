@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=${ENV_CFLAGS} -Wall -g -std=c99 -fno-builtin -lwiringPi -lm -I../hexfont
-CFLAGS_EXTRA=-lkulm -lhexfont -L. -L../hexfont
+CFLAGS=${ENV_CFLAGS} -Wall -g -std=c99 -fno-builtin -lwiringPi -lm -I../hexfont -I../tinyutf8
+CFLAGS_EXTRA=-lkulm -lhexfont -ltinyutf8 -L. -L../hexfont -L../tinyutf8
 utilObjsMatrix=kulm_matrix.o
 utilObjsSegment=kulm_segment.o
 utilObjsSegmentList=kulm_segment_list.o

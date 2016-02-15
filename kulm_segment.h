@@ -50,8 +50,8 @@ typedef struct kulm_segment
     bool     on;
     bool     paused;
 
-    char     text[KULM_TEXT_LEN];
-    uint16_t text_len;
+    uint32_t codepoints[KULM_TEXT_LEN];
+    size_t   text_len;
     float    text_speed;
     float    text_pos;
 

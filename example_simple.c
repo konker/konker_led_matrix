@@ -82,7 +82,7 @@ int main() {
     hexfont * const example_font = hexfont_load_data(konker_hexfont_basic, 16);
 
     kulm_mat_simple_init(example_matrix, example_font);
-    kulm_mat_simple_set_text(example_matrix, "KONKER IS INVINCIBLE!!");
+    kulm_mat_simple_set_text(example_matrix, "KÖNKER IS INVINCIBLE!!");
     kulm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1);
 
     // Call the animation driver for a while

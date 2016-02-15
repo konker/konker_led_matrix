@@ -26,6 +26,7 @@
 #include <string.h>
 #include <math.h>
 
+#include <tinyutf8.h>
 #include "kulm_segment.h"
 #include "kulm_matrix.h"
 
@@ -65,7 +66,7 @@ kulm_segment * const kulm_seg_create(
 
     int i;
     for (i=0; i<KULM_TEXT_LEN; i++) {
-        segment->text[i] = 0x0;
+        segment->codepoints[i] = 0x0;
     }
 
     segment->_row_width = (width / KULM_BYTE_WIDTH);
@@ -140,9 +141,16 @@ void kulm_seg_off(kulm_segment * const seg) {
 }
 
 /** Set the segment's text content */
-uint16_t kulm_seg_set_text(kulm_segment *seg, const char *text) {
-    strcpy(seg->text, text);
-    seg->text_len = strlen(seg->text);
+uint16_t kulm_seg_set_text(kulm_segment *seg, const char * const text) {
+    //[TODO: should the codepoints buffer by dynamically allocated?]
+    seg->text_len = tinyutf8_strlen(text);
+
+    size_t i = 0, cnt = 0;
+    while (cnt < seg->text_len && i < KULM_TEXT_LEN) {
+        seg->codepoints[cnt] = tinyutf8_next_codepoint(text, &i);
+        cnt++;
+    }
+
     seg->_text_pixel_len = kulm_seg_get_text_pixel_len(seg);
     seg->_dirty = true;
 
@@ -164,7 +172,7 @@ void kulm_seg_render_text(kulm_segment *seg) {
     int16_t i;
     for (i=0; i<seg->text_len; i++) {
         int16_t _x = (seg->x + (int16_t)seg->text_pos + width_accum);
-        hexfont_character * const c = hexfont_get(font, seg->text[i]);
+        hexfont_character * const c = hexfont_get(font, seg->codepoints[i]);
         if (c == NULL) {
             continue;
         }
@@ -188,7 +196,7 @@ uint16_t kulm_seg_get_text_pixel_len(kulm_segment * const seg) {
 
     int16_t i;
     for (i=0; i<seg->text_len; i++) {
-        hexfont_character * const c = hexfont_get(font, seg->text[i]);
+        hexfont_character * const c = hexfont_get(font, seg->codepoints[i]);
         if (c == NULL) {
             continue;
         }
