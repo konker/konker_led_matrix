@@ -27,7 +27,7 @@
 
 #include "kulm_matrix.h"
 #include "kulm_segment.h"
-#include "konker_hexfont_basic.h"
+#include "iso-8859-15_hexfont.h"
 
 #define EXAMPLE_MATRIX_WIDTH 32
 #define EXAMPLE_MATRIX_HEIGHT 16
