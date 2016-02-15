@@ -35,6 +35,7 @@
 #define KULM_CHARACTER_SPACING 1
 
 
+
 /** Create a segment object by */
 kulm_segment * const kulm_seg_create(
                                 kulm_matrix * const matrix,
@@ -163,10 +164,11 @@ void kulm_seg_render_text(kulm_segment *seg) {
         hexfont_character * const c = hexfont_get(font, seg->text[i]);
 
         if (_x < seg->x + seg->width) {
-            kulm_mat_render_sprite(seg->matrix, c,
+            kulm_mat_render_sprite(seg->matrix,
+                                   c,
                                    _x, seg->y,
-                                   seg->x, seg->x + seg->width,
-                                   seg->y, seg->y + seg->height);
+                                   seg->x, seg->y,
+                                   seg->x + seg->width, seg->y + seg->height);
         }
         width_accum +=
             (c->width + KULM_CHARACTER_SPACING);

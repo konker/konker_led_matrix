@@ -30,7 +30,6 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "kulm_matrix.h"
 
 #define KULM_TEXT_LEN 64
 

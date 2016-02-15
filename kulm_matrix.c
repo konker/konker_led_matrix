@@ -29,11 +29,17 @@
 #include "kulm_matrix.h"
 #include "kulm_segment.h"
 
-void _kulm_mat_sanity_check(kulm_matrix * const matrix);
+static void _kulm_mat_sanity_check(kulm_matrix * const matrix);
 
 extern inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
+extern void kulm_mat_render_sprite(
+                    kulm_matrix * const matrix,
+                    hexfont_character * const sprite,
+                    int16_t x, int16_t y,
+                    int16_t clip_x0, int16_t clip_y0,
+                    int16_t clip_x1, int16_t clip_y1);
 extern inline void kulm_mat_scan(kulm_matrix * const matrix);
 
 /**
@@ -73,8 +79,6 @@ kulm_matrix * const kulm_mat_create(
     matrix->on = true;
     matrix->paused = false;
     matrix->_scan_row = 0;
-
-    matrix->_default = false;
 
     return matrix;
 }
@@ -125,119 +129,55 @@ void kulm_mat_init(kulm_matrix * const matrix,
     _kulm_mat_sanity_check(matrix);
 }
 
-/** Initialize a matrix object with the given font. A full-screen segment will be automatically created */
+/** Initialize a matrix object with the given font.
+    A full-screen segment will be automatically created */
 void kulm_mat_simple_init(kulm_matrix * const matrix, hexfont * const font) {
     // Create a font list containing the given font
-    hexfont_list *_default_font_list =
-                            hexfont_list_create(font);
-
-    // Allocate a segments array with one item
-    kulm_segment ** const _default_segments =
-                            calloc(1, sizeof(*matrix->segments));
+    hexfont_list * const _default_font_list = hexfont_list_create(font);
 
     // Create a single full-screen segment
-    _default_segments[0] =
-                                kulm_seg_create(
-                                    matrix,
-                                    0, 0,
-                                    matrix->width,
-                                    matrix->height,
-                                    0);
+    kulm_segment * const _default_segment =
+                                kulm_seg_create(matrix,
+                                                0, 0,
+                                                matrix->width,
+                                                matrix->height,
+                                                0);
 
-    // Initialize the matrix with the default font list and segment
-    kulm_mat_init(
-            matrix,
-            _default_font_list,
-            _default_segments,
-            1);
+    // Create a segment list with one item
+    kulm_segment_list * const _default_segment_list =
+                                    kulm_segment_list_create(_default_segment);
 
-    matrix->_default = true;
+    // Initialize the matrix with the default font list and segment list
+    kulm_mat_init(matrix,
+                  _default_font_list,
+                  _default_segment_list);
 }
 
 /** Set the default full-screen segment's text content */
 uint16_t kulm_mat_simple_set_text(kulm_matrix * const matrix, const char *text) {
-    return kulm_seg_set_text(matrix->segments[0], text);
+    return kulm_seg_set_text(matrix->segment_list->item, text);
 }
 
 /** Set the animation scroll speed of the default full-screen segment in pixels per frame */
 void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed) {
-    kulm_seg_set_text_speed(matrix->segments[0], speed);
+    kulm_seg_set_text_speed(matrix->segment_list->item, speed);
 }
-
-/** Drive the matrix display */
-/*[XXX: inline]
-void kulm_mat_scan(kulm_matrix *matrix) {
-    if (!matrix->on) return;
-
-#ifndef NON_GPIO_MACHINE
-    // Process each 8-pixel byte in the row
-    uint8_t offset = KULM_ROW_OFFSET(matrix, matrix->_scan_row);
-
-    // Process the row in reverse order
-    int16_t x8;
-    for (x8=matrix->_row_width-1; x8>=0; x8--) {
-        uint8_t pixel8 = matrix->display_buffer[offset + x8];
-
-        // Write each pixel in the byte, in reverse order
-        shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);
-    }
-
-    // Disable display
-    digitalWrite(matrix->oe, HIGH);
-
-    // Display the rows in reverse order
-    uint16_t display_row = (matrix->height - 1 - matrix->_scan_row);
-
-    // Select row
-    digitalWrite(matrix->a, (display_row & 0x01));
-    digitalWrite(matrix->b, (display_row & 0x02));
-    digitalWrite(matrix->c, (display_row & 0x04));
-    digitalWrite(matrix->d, (display_row & 0x08));
-
-    // Latch data
-    digitalWrite(matrix->stb, LOW);
-    digitalWrite(matrix->stb, HIGH);
-    digitalWrite(matrix->stb, LOW);
-
-    // Enable display
-    digitalWrite(matrix->oe, LOW);
-
-    // Next row, wrap around at the bottom
-    matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
-#endif
-}
-*/
 
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
     if (matrix->paused) return;
 
-    int16_t i;
-    for (i=0; i<matrix->num_segments; i++) {
-        kulm_seg_tick(matrix->segments[i]);
+    kulm_segment_list *iter = matrix->segment_list;
+    while (iter) {
+        kulm_seg_tick(iter->item);
+        iter = iter->next;
     }
 }
-
-/** Switch a matrix pixel on */
-/*[XXX: inline]
-void kulm_mat_set_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
-    size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 1);
-}
-*/
-
-/** Switch a matrix pixel off */
-/*[XXX: inline]
-void kulm_mat_clear_pixel(kulm_matrix *matrix, int16_t x, int16_t y) {
-    size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 0);
-}
-*/
 
 /** Query whether or not the given pixel has been set */
 bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    if (bitRead(matrix->display_buffer[p], x % KULM_BYTE_WIDTH)) {
+    if (bitRead(matrix->display_buffer[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
         return true;
     }
     return false;
@@ -247,24 +187,9 @@ bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
 void kulm_mat_clear(kulm_matrix *matrix) {
     int16_t i;
     for (i=0; i<(matrix->height*matrix->_row_width); i++) {
-        matrix->display_buffer[i] = 0x00;
+        matrix->display_buffer[i] = KULM_OFF_BYTE;
     }
 }
-
-/** Clear a region of the matrix */
-/*[XXX: inline]
-void kulm_mat_clear_region(kulm_matrix *matrix, int16_t x, int16_t y, uint16_t w, uint16_t h) {
-    int16_t by, bx;
-    for (by=0; by<h; by++) {
-        for (bx=0; bx<w; bx++) {
-            int16_t _x = x + bx;
-            int16_t _y = y + by;
-
-            kulm_mat_clear_pixel(matrix, _x, _y);
-        }
-    }
-}
-*/
 
 /** Start animation of matrix content */
 void kulm_mat_start(kulm_matrix *matrix) {
@@ -289,47 +214,6 @@ void kulm_mat_off(kulm_matrix *matrix) {
 #endif
 }
 
-/** Set a region of pixels from a source sprite array */
-void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1) {
-
-    int16_t by, bx;
-    for (by=0; by<sprite->height; by++) {
-        for (bx=0; bx<sprite->width; bx++) {
-            int16_t _x = x + bx;
-            int16_t _y = y + by;
-
-            if (_x < clip_x0 ||
-                _x >= clip_x1 ||
-                _y < clip_y0 ||
-                _y >= clip_y1)
-            {
-                continue;
-            }
-
-            if (hexfont_get_pixel(sprite, bx, by)) {
-                kulm_mat_set_pixel(matrix, _x, _y);
-            }
-            else {
-                kulm_mat_clear_pixel(matrix, _x, _y);
-            }
-        }
-    }
-}
-
-void _kulm_mat_sanity_check(kulm_matrix * const matrix) {
-    // Check that segments are within the bounds of the matrix
-    //[TODO]
-
-    // Check that segments do not overlap
-    //[TODO]]
-
-    // Check that font references exist in font list
-    //[TODO]
-
-    // Check that font sizes fit within segments
-    //[TODO]
-}
-
 void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
     int16_t i;
     for (i=0; i<matrix->height*matrix->_row_width; i++) {
@@ -350,5 +234,19 @@ void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
         fprintf(fp, "\n");
     }
     fprintf(fp, "\n");
+}
+
+static void _kulm_mat_sanity_check(kulm_matrix * const matrix) {
+    // Check that segments are within the bounds of the matrix
+    //[TODO]
+
+    // Check that segments do not overlap
+    //[TODO]]
+
+    // Check that font references exist in font list
+    //[TODO]
+
+    // Check that font sizes fit within segments
+    //[TODO]
 }
 

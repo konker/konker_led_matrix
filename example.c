@@ -29,9 +29,17 @@
 #include "kulm_segment.h"
 #include "konker_hexfont_basic.h"
 
-#define EXAMPLE_MATRIX_WIDTH 64
+#define EXAMPLE_MATRIX_WIDTH 32
 #define EXAMPLE_MATRIX_HEIGHT 16
-#define EXAMPLE_MATRIX_ROW_WIDTH (EXAMPLE_MATRIX_WIDTH / 8)
+
+#define EXAMPLE_A 0
+#define EXAMPLE_B 2
+#define EXAMPLE_C 3
+#define EXAMPLE_D 12
+#define EXAMPLE_OE 13
+#define EXAMPLE_R1 14
+#define EXAMPLE_STB 21
+#define EXAMPLE_CLK 22
 
 
 int main() {
@@ -47,8 +55,7 @@ int main() {
 #  endif
 #endif
     uint8_t example_display_buffer[
-                    EXAMPLE_MATRIX_HEIGHT *
-                    EXAMPLE_MATRIX_ROW_WIDTH];
+        KULM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
 
     // Create a matrix
     kulm_matrix *example_matrix =
@@ -56,12 +63,23 @@ int main() {
                             example_display_buffer,
                             EXAMPLE_MATRIX_WIDTH,
                             EXAMPLE_MATRIX_HEIGHT,
-                            0, 2, 3, 12, 13, 14, 21, 22);
+                            EXAMPLE_A,
+                            EXAMPLE_B,
+                            EXAMPLE_C,
+                            EXAMPLE_D,
+                            EXAMPLE_OE,
+                            EXAMPLE_R1,
+                            EXAMPLE_STB,
+                            EXAMPLE_CLK);
 
     // Initialize some font(s)
     hexfont * const example_font = hexfont_load_data(konker_hexfont_basic, 16);
-    hexfont_list *example_font_list =
-                        hexfont_list_create(example_font);
+
+    // Create a font list
+    hexfont_list * const example_font_list = hexfont_list_create(NULL);
+
+    // Add the font to the font list
+    hexfont_list_append(example_font_list, example_font);
 
     // Create some segments
     kulm_segment *example_segments[2];

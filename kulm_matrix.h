@@ -45,18 +45,21 @@ extern "C" {
 #  define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 #endif
 
+#include <hexfont.h>
+#include <hexfont_list.h>
 #include "kulm_segment.h"
-#include "hexfont.h"
-#include "hexfont_list.h"
-
-// Macros for convenience
-#define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
-#define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/8)
+#include "kulm_segment_list.h"
 
 // Symbolic constants
 #define KULM_BYTE_WIDTH 8
-#define KULM_CHARACTER_HEIGHT 6
-#define KULM_CHARACTER_SPACING 1
+#define KULM_OFF_BYTE 0xff
+#define KULM_OFF 0x01
+#define KULM_ON 0x00
+
+// Macros for convenience
+#define KULM_BUFFER_LEN(w, h) (h * (w/KULM_BYTE_WIDTH))
+#define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
+#define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/KULM_BYTE_WIDTH)
 
 
 // Forward declare kulm_segment because of circular refs
@@ -65,21 +68,21 @@ typedef struct kulm_segment kulm_segment;
 typedef struct kulm_matrix
 {
     // GPIO control pins
-    uint8_t  a, b, c, d, oe, r1, stb, clk;
+    uint8_t a, b, c, d, oe, r1, stb, clk;
 
     // Physical dimensions of the display
     int16_t width;
     int16_t height;
 
     // A buffer to hold the current frame
-    uint8_t  *display_buffer;
+    uint8_t *display_buffer;
 
     // A list of available fonts and associated font-metrics
     hexfont_list *font_list;
 
     // Global matrix state flags
-    bool     on;
-    bool     paused;
+    bool on;
+    bool paused;
 
     // Array of virtual segment pointers which make up the display
     kulm_segment **segments;
@@ -88,7 +91,6 @@ typedef struct kulm_matrix
     // Internal vars
     uint16_t _row_width;
     uint16_t _scan_row;
-    bool _default;
 
 } kulm_matrix;
 
@@ -143,33 +145,64 @@ void kulm_mat_off(kulm_matrix * const matrix);
 /** Print a representation of the display buffer to the console */
 void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp);
 
-/** Set a region of pixels from a source sprite array */
-void kulm_mat_render_sprite(kulm_matrix * const matrix, hexfont_character * const sprite, int16_t x, int16_t y, int16_t clip_x0, int16_t clip_x1, int16_t clip_y0, int16_t clip_y1);
-
 // Inline funtions
 // ----------------------------------------------------------------------------
 
 /** Switch a matrix pixel on */
 inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 1);
+    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, KULM_ON);
 }
 
 /** Switch a matrix pixel off */
 inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, 0);
+    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, KULM_OFF);
 }
 
 /** Clear a region of the matrix */
-inline void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h) {
-    int16_t by, bx;
+inline void kulm_mat_clear_region(
+                    kulm_matrix * const matrix,
+                    int16_t x, int16_t y,
+                    uint16_t w, uint16_t h)
+{
+    int16_t bx, by;
     for (by=0; by<h; by++) {
         for (bx=0; bx<w; bx++) {
             int16_t _x = x + bx;
             int16_t _y = y + by;
 
             kulm_mat_clear_pixel(matrix, _x, _y);
+        }
+    }
+}
+
+/** Set a region of pixels from a source sprite array */
+inline void kulm_mat_render_sprite(
+                    kulm_matrix * const matrix,
+                    hexfont_character * const sprite,
+                    int16_t x, int16_t y,
+                    int16_t clip_x0, int16_t clip_y0,
+                    int16_t clip_x1, int16_t clip_y1)
+{
+    int16_t by, bx;
+    for (by=0; by<sprite->height; by++) {
+        for (bx=0; bx<sprite->width; bx++) {
+            int16_t _x = x + bx;
+            int16_t _y = y + by;
+
+            if (_x < clip_x0 || _x >= clip_x1 ||
+                _y < clip_y0 || _y >= clip_y1)
+            {
+                continue;
+            }
+
+            if (hexfont_character_get_pixel(sprite, bx, by)) {
+                kulm_mat_set_pixel(matrix, _x, _y);
+            }
+            else {
+                kulm_mat_clear_pixel(matrix, _x, _y);
+            }
         }
     }
 }
