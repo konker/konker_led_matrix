@@ -88,15 +88,8 @@ void kulm_mat_destroy(kulm_matrix * const matrix) {
     // Clean up the font list
     hexfont_list_destroy(matrix->font_list);
 
-    // Clean up the segments
-    int16_t i;
-    for (i=0; i<matrix->num_segments; i++) {
-        kulm_seg_destroy(matrix->segments[i]);
-    }
-
-    if (matrix->_default) {
-        free(matrix->segments);
-    }
+    // Clean up the font list
+    kulm_segment_list_destroy(matrix->segment_list);
 
     // Free dynamically allocated memory for the matrix itself
     free(matrix);
@@ -105,12 +98,10 @@ void kulm_mat_destroy(kulm_matrix * const matrix) {
 /** Initialize a matrix object with a set of fonts and a set of segments */
 void kulm_mat_init(kulm_matrix * const matrix,
                    hexfont_list *font_list,
-                   kulm_segment ** const segments,
-                   uint16_t num_segments)
+                   kulm_segment_list *segment_list)
 {
     matrix->font_list = font_list;
-    matrix->segments = segments;
-    matrix->num_segments = num_segments;
+    matrix->segment_list = segment_list;
 
 #ifndef NON_GPIO_MACHINE
     // Initilize pin modes

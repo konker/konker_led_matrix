@@ -84,9 +84,8 @@ typedef struct kulm_matrix
     bool on;
     bool paused;
 
-    // Array of virtual segment pointers which make up the display
-    kulm_segment **segments;
-    uint16_t num_segments;
+    // A list of virtual segments which make up the display
+    kulm_segment_list *segment_list;
 
     // Internal vars
     uint16_t _row_width;
@@ -107,10 +106,10 @@ kulm_matrix * const kulm_mat_create(
 void kulm_mat_destroy(kulm_matrix * const matrix);
 
 /** Initialize a matrix object with a set of fonts and a set of segments */
-void kulm_mat_init(kulm_matrix * const matrix,
-                   hexfont_list * const font_list,
-                   kulm_segment ** const segments,
-                   uint16_t num_segments);
+void kulm_mat_init(
+            kulm_matrix * const matrix,
+            hexfont_list * const font_list,
+            kulm_segment_list * const segment_list);
 
 /** Initialize a matrix object with the given font. A full-screen segment will be automatically created */
 void kulm_mat_simple_init(kulm_matrix * const matrix, hexfont * const font);

@@ -82,37 +82,44 @@ int main() {
     hexfont_list_append(example_font_list, example_font);
 
     // Create some segments
-    kulm_segment *example_segments[2];
-    example_segments[0] = kulm_seg_create(
-                                example_matrix,
-                                0,
-                                0,
-                                EXAMPLE_MATRIX_WIDTH/2,
-                                EXAMPLE_MATRIX_HEIGHT,
-                                0);
+    kulm_segment * const example_segment0 =
+                            kulm_seg_create(
+                                        example_matrix,
+                                        0,
+                                        0,
+                                        EXAMPLE_MATRIX_WIDTH/2,
+                                        EXAMPLE_MATRIX_HEIGHT,
+                                        0);
 
-    example_segments[1] = kulm_seg_create(
-                                example_matrix,
-                                EXAMPLE_MATRIX_WIDTH/2 + 4,
-                                0,
-                                EXAMPLE_MATRIX_WIDTH/2 - 4,
-                                EXAMPLE_MATRIX_HEIGHT,
-                                0);
+    kulm_segment * const example_segment1 =
+                            kulm_seg_create(
+                                        example_matrix,
+                                        EXAMPLE_MATRIX_WIDTH/2 + 4,
+                                        0,
+                                        EXAMPLE_MATRIX_WIDTH/2 - 4,
+                                        EXAMPLE_MATRIX_HEIGHT,
+                                        0);
+
+    // Create a segments list
+    kulm_segment_list * const example_segment_list = kulm_segment_list_create(NULL);
+
+    // Add the segments to the segment list
+    kulm_segment_list_append(example_segment_list, example_segment0);
+    kulm_segment_list_append(example_segment_list, example_segment1);
 
     // Initialize the matrix with the example segments and fonts
     kulm_mat_init(
             example_matrix,
             example_font_list,
-            example_segments,
-            2);
+            example_segment_list);
 
     // Set some text in segment 0
-    kulm_seg_set_text(example_segments[0], "KONKER");
-    kulm_seg_set_text_speed(example_segments[0], 6.0);
+    kulm_seg_set_text(example_segment0, "KONKER");
+    kulm_seg_set_text_speed(example_segment0, 0.006);
 
     // Set some text in segment 1
-    kulm_seg_set_text(example_segments[1], "INVINCIBLE!");
-    kulm_seg_set_text_speed(example_segments[1], 3.0);
+    kulm_seg_set_text(example_segment1, "INVINCIBLE!");
+    kulm_seg_set_text_speed(example_segment1, 0.003);
 
     // Call the animation driver for a while
     int16_t j = 0;
