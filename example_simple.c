@@ -77,7 +77,7 @@ int main() {
 
     kulm_mat_simple_init(example_matrix, example_font);
     kulm_mat_simple_set_text(example_matrix, "KONKER IS INVINCIBLE!!");
-    kulm_mat_simple_set_text_speed(example_matrix, 0.002);
+    kulm_mat_simple_set_text_speed(example_matrix, -0.200);
 
     // Call the animation driver for a while
     int16_t j = 0;

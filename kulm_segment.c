@@ -85,9 +85,12 @@ void kulm_seg_tick(kulm_segment * const seg) {
 
     if (seg->_dirty || seg->text_speed != 0) {
         // Animate and render text
-        seg->text_pos -= seg->text_speed;
+        seg->text_pos += seg->text_speed;
         if (seg->text_pos < -seg->_text_pixel_len) {
             seg->text_pos = seg->width;
+        }
+        else if (seg->text_pos > seg->width) {
+            seg->text_pos = -seg->_text_pixel_len;
         }
         kulm_seg_clear(seg);
         kulm_seg_render_text(seg);

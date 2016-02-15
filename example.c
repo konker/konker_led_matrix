@@ -115,7 +115,7 @@ int main() {
 
     // Set some text in segment 0
     kulm_seg_set_text(example_segment0, "KONKER");
-    kulm_seg_set_text_speed(example_segment0, 0.006);
+    kulm_seg_set_text_speed(example_segment0, -0.006);
 
     // Set some text in segment 1
     kulm_seg_set_text(example_segment1, "INVINCIBLE!");
