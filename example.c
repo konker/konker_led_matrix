@@ -81,7 +81,7 @@ int main() {
                             EXAMPLE_CLK);
 
     // Initialize some font(s)
-    hexfont * const example_font = hexfont_load_data(konker_hexfont_basic, 16);
+    hexfont * const example_font = hexfont_load_data(hexfont_iso_8859_15, 16);
 
     // Create a font list
     hexfont_list * const example_font_list = hexfont_list_create(NULL);

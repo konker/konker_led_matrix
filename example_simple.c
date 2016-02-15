@@ -79,7 +79,7 @@ int main() {
                             EXAMPLE_CLK);
 
     // Initialize some font(s)
-    hexfont * const example_font = hexfont_load_data(konker_hexfont_basic, 16);
+    hexfont * const example_font = hexfont_load_data(hexfont_iso_8859_15, 16);
 
     kulm_mat_simple_init(example_matrix, example_font);
     kulm_mat_simple_set_text(example_matrix, "KÖNKER IS INVINCIBLE!!");
