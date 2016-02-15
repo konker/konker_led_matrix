@@ -94,6 +94,11 @@ int main() {
         // Call the display driver for one row
         kulm_mat_scan(example_matrix);
 
+        // Reverse the display every 2000 scans
+        if ((j % 2000) == 0) {
+            kulm_mat_reverse(example_matrix);
+        }
+
 #ifdef NON_GPIO_MACHINE
         kulm_mat_dump_buffer(example_matrix, stdout);
         sleep(1);

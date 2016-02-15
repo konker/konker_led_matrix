@@ -52,9 +52,9 @@ extern "C" {
 
 // Symbolic constants
 #define KULM_BYTE_WIDTH 8
-#define KULM_OFF_BYTE 0xff
-#define KULM_OFF 0x01
-#define KULM_ON 0x00
+#define KULM_OFF_BYTE 0x00
+#define KULM_OFF 0x00
+#define KULM_ON 0x01
 
 // Macros for convenience
 #define KULM_BUFFER_LEN(w, h) (h * (w/KULM_BYTE_WIDTH))
@@ -76,6 +76,9 @@ typedef struct kulm_matrix
 
     // A buffer to hold the current frame
     uint8_t *display_buffer;
+
+    // Mask
+    uint8_t mask;
 
     // A list of available fonts and associated font-metrics
     hexfont_list *font_list;
@@ -140,6 +143,9 @@ void kulm_mat_on(kulm_matrix * const matrix);
 
 /** Switch on matrix display */
 void kulm_mat_off(kulm_matrix * const matrix);
+
+/** Reverse the matrix display */
+void kulm_mat_reverse(kulm_matrix * const matrix);
 
 /** Print a representation of the display buffer to the console */
 void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp);
@@ -218,6 +224,9 @@ inline void kulm_mat_scan(kulm_matrix * const matrix) {
     int16_t x8;
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
         uint8_t pixel8 = matrix->display_buffer[offset + x8];
+
+        // Apply the mask
+        pixel8 ^= matrix->mask;
 
         // Write each pixel in the byte, in reverse order
         shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);

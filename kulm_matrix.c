@@ -80,6 +80,8 @@ kulm_matrix * const kulm_mat_create(
     matrix->paused = false;
     matrix->_scan_row = 0;
 
+    matrix->mask = 0xff;
+
     return matrix;
 }
 
@@ -203,6 +205,11 @@ void kulm_mat_off(kulm_matrix *matrix) {
 #ifndef NON_GPIO_MACHINE
     digitalWrite(matrix->oe, HIGH);
 #endif
+}
+
+/** Reverse the matrix display */
+void kulm_mat_reverse(kulm_matrix * const matrix) {
+    matrix->mask = ~matrix->mask;
 }
 
 void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
