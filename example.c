@@ -41,6 +41,14 @@
 #define EXAMPLE_STB 21
 #define EXAMPLE_CLK 22
 
+#ifdef NON_GPIO_MACHINE
+#   define EXAMPLE_TEXT_SPEED1 2.20
+#   define EXAMPLE_TEXT_SPEED2 4.20
+#else
+#   define EXAMPLE_TEXT_SPEED1 0.002
+#   define EXAMPLE_TEXT_SPEED2 0.004
+#endif
+
 
 int main() {
     printf("Konker's Ultrathin LED Matrix library\n");
@@ -114,12 +122,12 @@ int main() {
             example_segment_list);
 
     // Set some text in segment 0
-    kulm_seg_set_text(example_segment0, "KONKER");
-    kulm_seg_set_text_speed(example_segment0, -0.006);
+    kulm_seg_set_text(example_segment0, "HELLO");
+    kulm_seg_set_text_speed(example_segment0, -EXAMPLE_TEXT_SPEED1);
 
     // Set some text in segment 1
-    kulm_seg_set_text(example_segment1, "INVINCIBLE!");
-    kulm_seg_set_text_speed(example_segment1, 0.003);
+    kulm_seg_set_text(example_segment1, "WORLD!");
+    kulm_seg_set_text_speed(example_segment1, EXAMPLE_TEXT_SPEED2);
 
     // Call the animation driver for a while
     int16_t j = 0;

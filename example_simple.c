@@ -41,6 +41,12 @@
 #define EXAMPLE_STB 21
 #define EXAMPLE_CLK 22
 
+#ifdef NON_GPIO_MACHINE
+#   define EXAMPLE_TEXT_SPEED1 2.20
+#else
+#   define EXAMPLE_TEXT_SPEED1 0.002
+#endif
+
 
 int main() {
     printf("Konker's Ultrathin LED Matrix library\n");
@@ -77,7 +83,7 @@ int main() {
 
     kulm_mat_simple_init(example_matrix, example_font);
     kulm_mat_simple_set_text(example_matrix, "KONKER IS INVINCIBLE!!");
-    kulm_mat_simple_set_text_speed(example_matrix, -0.200);
+    kulm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1);
 
     // Call the animation driver for a while
     int16_t j = 0;
