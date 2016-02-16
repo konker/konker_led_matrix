@@ -11,6 +11,9 @@ example: example.c libkulm.a
 example_simple: example_simple.c libkulm.a
 	$(CC) $(CFLAGS) -o $@ $< $(CFLAGS_EXTRA)
 
+test_example: test_example.c libkulm.a
+	$(CC) $(CFLAGS) -o $@ $< $(CFLAGS_EXTRA) -pg
+
 libkulm.a: $(utilObjsMatrix) $(utilObjsSegment) $(utilObjsSegmentList)
 	ar rc $@ $(utilObjsMatrix) $(utilObjsSegment) $(utilObjsSegmentList)
 	ranlib $@
@@ -25,7 +28,7 @@ $(utilObjsSegmentList): kulm_segment_list.c kulm_segment_list.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o libkulm.a example example_simple
+	rm -rf *.o libkulm.a example example_simple test_example
 
-all: example example_simple
+all: example example_simple test_example
 .PHONY: all clean
