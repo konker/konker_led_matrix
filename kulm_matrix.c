@@ -175,7 +175,7 @@ void kulm_mat_tick(kulm_matrix *matrix) {
 /** Query whether or not the given pixel has been set */
 bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    if (bitRead(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
+    if (bitRead(matrix->display_buffer1[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
         return true;
     }
     return false;
