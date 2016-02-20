@@ -220,6 +220,10 @@ void kulm_mat_reverse(kulm_matrix * const matrix) {
 void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
     int16_t i;
     for (i=0; i<matrix->height*matrix->_row_width; i++) {
+        fprintf(fp, "%02x ", matrix->display_buffer0[i]);
+    }
+    fprintf(fp, "\n");
+    for (i=0; i<matrix->height*matrix->_row_width; i++) {
         fprintf(fp, "%02x ", matrix->display_buffer1[i]);
     }
     fprintf(fp, "\n");
