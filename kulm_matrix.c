@@ -41,6 +41,7 @@ extern void kulm_mat_render_sprite(
                     int16_t clip_x0, int16_t clip_y0,
                     int16_t clip_x1, int16_t clip_y1);
 extern inline void kulm_mat_scan(kulm_matrix * const matrix);
+extern inline void kulm_mat_swap_buffers(kulm_matrix * const matrix);
 
 /**
  * Create a new matrix
@@ -167,6 +168,8 @@ void kulm_mat_tick(kulm_matrix *matrix) {
         kulm_seg_tick(iter->item);
         iter = iter->next;
     }
+
+    kulm_mat_swap_buffers(matrix);
 }
 
 /** Query whether or not the given pixel has been set */
