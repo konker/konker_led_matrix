@@ -34,7 +34,7 @@ static void _kulm_mat_sanity_check(kulm_matrix * const matrix);
 extern inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
-extern void kulm_mat_render_sprite(
+extern inline void kulm_mat_render_sprite(
                     kulm_matrix * const matrix,
                     hexfont_character * const sprite,
                     int16_t x, int16_t y,
