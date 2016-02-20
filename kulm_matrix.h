@@ -30,6 +30,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #ifdef ARDUINO
 #  include <Arduino.h>
@@ -75,7 +76,10 @@ typedef struct kulm_matrix
     int16_t height;
 
     // A buffer to hold the current frame
-    uint8_t *display_buffer;
+    uint8_t *display_buffer0;
+
+    // A buffer to hold the current frame for display
+    uint8_t *display_buffer1;
 
     // Mask
     uint8_t mask;
@@ -99,7 +103,8 @@ typedef struct kulm_matrix
 
 /** Create a matrix object by specifying its physical characteristics */
 kulm_matrix * const kulm_mat_create(
-                            uint8_t *display_buffer,
+                            uint8_t *display_buffer0,
+                            uint8_t *display_buffer1,
                             uint8_t width,
                             uint8_t height,
                             uint8_t a, uint8_t b, uint8_t c, uint8_t d,
@@ -156,13 +161,18 @@ void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp);
 /** Switch a matrix pixel on */
 inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, KULM_ON);
+    bitWrite(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH, KULM_ON);
 }
 
 /** Switch a matrix pixel off */
 inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer[p], x % KULM_BYTE_WIDTH, KULM_OFF);
+    bitWrite(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH, KULM_OFF);
+}
+
+/** Copy the buffer0 to buffer1 */
+inline void kulm_mat_swap_buffers(kulm_matrix * const matrix) {
+    memcpy(matrix->display_buffer1, matrix->display_buffer0, sizeof(matrix->display_buffer1));
 }
 
 /** Clear a region of the matrix */
@@ -223,7 +233,7 @@ inline void kulm_mat_scan(kulm_matrix * const matrix) {
     // Process the row in reverse order
     int16_t x8;
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
-        uint8_t pixel8 = matrix->display_buffer[offset + x8];
+        uint8_t pixel8 = matrix->display_buffer1[offset + x8];
 
         // Apply the mask
         pixel8 ^= matrix->mask;

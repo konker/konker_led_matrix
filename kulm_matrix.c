@@ -53,7 +53,8 @@ extern inline void kulm_mat_scan(kulm_matrix * const matrix);
  * @return  A pointer to a newly initialized matrix stucture
  */
 kulm_matrix * const kulm_mat_create(
-                            uint8_t *display_buffer,
+                            uint8_t *display_buffer0,
+                            uint8_t *display_buffer1,
                             uint8_t width,
                             uint8_t height,
                             uint8_t a, uint8_t b, uint8_t c, uint8_t d,
@@ -64,7 +65,8 @@ kulm_matrix * const kulm_mat_create(
 
     matrix->width = width;
     matrix->height = height;
-    matrix->display_buffer = display_buffer;
+    matrix->display_buffer0 = display_buffer0;
+    matrix->display_buffer1 = display_buffer1;
     matrix->_row_width = (width / KULM_BYTE_WIDTH);
 
     matrix->a = a;
@@ -170,7 +172,7 @@ void kulm_mat_tick(kulm_matrix *matrix) {
 /** Query whether or not the given pixel has been set */
 bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
-    if (bitRead(matrix->display_buffer[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
+    if (bitRead(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
         return true;
     }
     return false;
@@ -180,7 +182,7 @@ bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
 void kulm_mat_clear(kulm_matrix *matrix) {
     int16_t i;
     for (i=0; i<(matrix->height*matrix->_row_width); i++) {
-        matrix->display_buffer[i] = KULM_OFF_BYTE;
+        matrix->display_buffer0[i] = KULM_OFF_BYTE;
     }
 }
 
@@ -215,7 +217,7 @@ void kulm_mat_reverse(kulm_matrix * const matrix) {
 void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
     int16_t i;
     for (i=0; i<matrix->height*matrix->_row_width; i++) {
-        fprintf(fp, "%02x ", matrix->display_buffer[i]);
+        fprintf(fp, "%02x ", matrix->display_buffer1[i]);
     }
     fprintf(fp, "\n");
 
@@ -245,6 +247,9 @@ static void _kulm_mat_sanity_check(kulm_matrix * const matrix) {
     //[TODO]
 
     // Check that font sizes fit within segments
+    //[TODO]
+
+    // Check that buffer0 and buffer1 have the same size
     //[TODO]
 }
 
