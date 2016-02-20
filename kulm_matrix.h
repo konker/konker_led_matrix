@@ -172,7 +172,14 @@ inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t 
 
 /** Copy the buffer0 to buffer1 */
 inline void kulm_mat_swap_buffers(kulm_matrix * const matrix) {
-    memcpy(matrix->display_buffer1, matrix->display_buffer0, sizeof(matrix->display_buffer1));
+    /*[XXX: copy version]
+    memcpy(matrix->display_buffer1,
+           matrix->display_buffer0,
+           sizeof(matrix->display_buffer0));
+    */
+    uint8_t *tmp = matrix->display_buffer1;
+    matrix->display_buffer1 = matrix->display_buffer0;
+    matrix->display_buffer0 = tmp;
 }
 
 /** Clear a region of the matrix */
