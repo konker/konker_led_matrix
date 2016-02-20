@@ -63,7 +63,7 @@ int main() {
 #  endif
 #endif
     uint8_t example_display_buffer[
-        KULM_BUFFER_LEN(EXAMPLE_MATRIX_WIDTH, EXAMPLE_MATRIX_HEIGHT)];
+        KULM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
 
     // Create a matrix
     kulm_matrix *example_matrix =
