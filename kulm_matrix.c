@@ -175,9 +175,15 @@ void kulm_mat_tick(kulm_matrix *matrix) {
 /** Query whether or not the given pixel has been set */
 bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
+#ifndef KULM_NO_DOUBLE_BUFFER
     if (bitRead(matrix->display_buffer1[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
         return true;
     }
+#else
+    if (bitRead(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH) == KULM_ON) {
+        return true;
+    }
+#endif
     return false;
 }
 
@@ -223,10 +229,12 @@ void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
         fprintf(fp, "%02x ", matrix->display_buffer0[i]);
     }
     fprintf(fp, "\n");
+#ifndef KULM_NO_DOUBLE_BUFFER
     for (i=0; i<matrix->height*matrix->_row_width; i++) {
         fprintf(fp, "%02x ", matrix->display_buffer1[i]);
     }
     fprintf(fp, "\n");
+#endif
 
     int16_t x, y;
     for (y=0; y<matrix->height; y++) {

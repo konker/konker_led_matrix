@@ -172,14 +172,11 @@ inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t 
 
 /** Copy the buffer0 to buffer1 */
 inline void kulm_mat_swap_buffers(kulm_matrix * const matrix) {
-    /*[XXX: copy version]
-    memcpy(matrix->display_buffer1,
-           matrix->display_buffer0,
-           sizeof(matrix->display_buffer0));
-    */
+#ifndef KULM_NO_DOUBLE_BUFFER
     uint8_t *tmp = matrix->display_buffer1;
     matrix->display_buffer1 = matrix->display_buffer0;
     matrix->display_buffer0 = tmp;
+#endif
 }
 
 /** Clear a region of the matrix */
@@ -240,7 +237,11 @@ inline void kulm_mat_scan(kulm_matrix * const matrix) {
     // Process the row in reverse order
     int16_t x8;
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
+#ifndef KULM_NO_DOUBLE_BUFFER
         uint8_t pixel8 = matrix->display_buffer1[offset + x8];
+#else
+        uint8_t pixel8 = matrix->display_buffer0[offset + x8];
+#endif
 
         // Apply the mask
         pixel8 ^= matrix->mask;
