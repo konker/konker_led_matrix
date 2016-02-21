@@ -166,6 +166,12 @@ void kulm_seg_set_text_speed(kulm_segment *seg, float speed) {
     seg->_dirty = true;
 }
 
+/** Set the position of the segment's text */
+void kulm_seg_set_text_position(kulm_segment * const seg, float text_pos) {
+    seg->text_pos = text_pos;
+    seg->_dirty = true;
+}
+
 /** Render the segment's text */
 void kulm_seg_render_text(kulm_segment *seg) {
     uint16_t width_accum = 0;

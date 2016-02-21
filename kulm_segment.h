@@ -103,6 +103,9 @@ uint16_t kulm_seg_set_text(kulm_segment * const seg, const char *text);
 /** Set the animation scroll speed of the segment in pixels per frame */
 void kulm_seg_set_text_speed(kulm_segment * const seg, float speed);
 
+/** Set the position of the segment's text */
+void kulm_seg_set_text_position(kulm_segment * const seg, float text_pos);
+
 /** Render the segment's text */
 void kulm_seg_render_text(kulm_segment * const seg);
 

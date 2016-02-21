@@ -161,6 +161,11 @@ void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed) {
     kulm_seg_set_text_speed(matrix->segment_list->item, speed);
 }
 
+/** Set the position of the default full-screen segment's text */
+void kulm_mat_simple_set_text_position(kulm_matrix * const matrix, float text_pos) {
+    kulm_seg_set_text_position(matrix->segment_list->item, text_pos);
+}
+
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
     kulm_segment_list *iter = matrix->segment_list;

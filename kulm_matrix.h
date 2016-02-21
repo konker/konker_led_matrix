@@ -133,6 +133,9 @@ uint16_t kulm_mat_simple_set_text(kulm_matrix * const matrix, const char *text);
 /** Set the animation scroll speed of the default full-screen segment in pixels per frame */
 void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed);
 
+/** Set the position of the default full-screen segment's text */
+void kulm_mat_simple_set_text_position(kulm_matrix * const matrix, float text_pos);
+
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix * const matrix);
 
