@@ -192,6 +192,11 @@ bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y) {
 /** Clear the entire matrix */
 void kulm_mat_clear(kulm_matrix *matrix) {
     int16_t i;
+#ifndef KULM_NO_DOUBLE_BUFFER
+    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
+        matrix->display_buffer1[i] = KULM_OFF_BYTE;
+    }
+#endif
     for (i=0; i<(matrix->height*matrix->_row_width); i++) {
         matrix->display_buffer0[i] = KULM_OFF_BYTE;
     }
