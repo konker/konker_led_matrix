@@ -54,6 +54,7 @@ extern inline void kulm_mat_swap_buffers(kulm_matrix * const matrix);
  * @return  A pointer to a newly initialized matrix stucture
  */
 kulm_matrix * const kulm_mat_create(
+                            FILE *logfp,
                             uint8_t *display_buffer0,
                             uint8_t *display_buffer1,
                             uint8_t width,
@@ -64,6 +65,7 @@ kulm_matrix * const kulm_mat_create(
     // Allocate memory for a kulm_matrix structure and initialize all members
     kulm_matrix * const matrix = malloc(sizeof(kulm_matrix));
 
+    matrix->logfp = logfp;
     matrix->width = width;
     matrix->height = height;
     matrix->display_buffer0 = display_buffer0;
@@ -223,32 +225,32 @@ void kulm_mat_reverse(kulm_matrix * const matrix) {
     matrix->mask = ~matrix->mask;
 }
 
-void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp) {
+void kulm_mat_dump_buffer(kulm_matrix * const matrix) {
     int16_t i;
     for (i=0; i<matrix->height*matrix->_row_width; i++) {
-        fprintf(fp, "%02x ", matrix->display_buffer0[i]);
+        KULM_LOG(matrix, "%02x ", matrix->display_buffer0[i]);
     }
-    fprintf(fp, "\n");
+    KULM_LOG(matrix, "\n");
 #ifndef KULM_NO_DOUBLE_BUFFER
     for (i=0; i<matrix->height*matrix->_row_width; i++) {
-        fprintf(fp, "%02x ", matrix->display_buffer1[i]);
+        KULM_LOG(matrix, "%02x ", matrix->display_buffer1[i]);
     }
-    fprintf(fp, "\n");
+    KULM_LOG(matrix, "\n");
 #endif
 
     int16_t x, y;
     for (y=0; y<matrix->height; y++) {
         for (x=0; x<matrix->width; x++) {
             if (kulm_mat_is_pixel_set(matrix, x, y)) {
-                fprintf(fp, "# ");
+                KULM_LOG(matrix, "# ");
             }
             else {
-                fprintf(fp, ". ");
+                KULM_LOG(matrix, ". ");
             }
         }
-        fprintf(fp, "\n");
+        KULM_LOG(matrix, "\n");
     }
-    fprintf(fp, "\n");
+    KULM_LOG(matrix, "\n");
 }
 
 static void _kulm_mat_sanity_check(kulm_matrix * const matrix) {

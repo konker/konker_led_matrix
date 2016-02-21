@@ -61,13 +61,17 @@ extern "C" {
 #define KULM_BUFFER_LEN(w, h) (h * (w/KULM_BYTE_WIDTH))
 #define KULM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
 #define KULM_BUF_OFFSET(matrix, x, y) (KULM_ROW_OFFSET(matrix, y)+x/KULM_BYTE_WIDTH)
-
+#define KULM_LOG(matrix, ...) fprintf(matrix->logfp, __VA_ARGS__); \
+                              fflush(matrix->logfp);
 
 // Forward declare kulm_segment because of circular refs
 typedef struct kulm_segment kulm_segment;
 
 typedef struct kulm_matrix
 {
+    // Log file pointer
+    FILE *logfp;
+
     // GPIO control pins
     uint8_t a, b, c, d, oe, r1, stb, clk;
 
@@ -103,6 +107,7 @@ typedef struct kulm_matrix
 
 /** Create a matrix object by specifying its physical characteristics */
 kulm_matrix * const kulm_mat_create(
+                            FILE *logfp,
                             uint8_t *display_buffer0,
                             uint8_t *display_buffer1,
                             uint8_t width,
@@ -153,7 +158,7 @@ void kulm_mat_off(kulm_matrix * const matrix);
 void kulm_mat_reverse(kulm_matrix * const matrix);
 
 /** Print a representation of the display buffer to the console */
-void kulm_mat_dump_buffer(kulm_matrix * const matrix, FILE *fp);
+void kulm_mat_dump_buffer(kulm_matrix * const matrix);
 
 // Inline funtions
 // ----------------------------------------------------------------------------

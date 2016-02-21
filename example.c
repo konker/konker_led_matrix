@@ -70,6 +70,7 @@ int main() {
     // Create a matrix
     kulm_matrix *example_matrix =
                     kulm_mat_create(
+                            stdout,
                             example_display_buffer0,
                             example_display_buffer1,
                             EXAMPLE_MATRIX_WIDTH,
@@ -142,7 +143,7 @@ int main() {
         kulm_mat_scan(example_matrix);
 
 #ifdef KULM_NON_GPIO_MACHINE
-        kulm_mat_dump_buffer(example_matrix, stdout);
+        kulm_mat_dump_buffer(example_matrix);
         sleep(1);
 #endif
     }

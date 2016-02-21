@@ -68,6 +68,7 @@ int main() {
     // Create a matrix
     kulm_matrix *example_matrix =
                     kulm_mat_create(
+                            stdout,
                             example_display_buffer0,
                             example_display_buffer1,
                             EXAMPLE_MATRIX_WIDTH,
@@ -88,6 +89,8 @@ int main() {
     kulm_mat_simple_set_text(example_matrix, "KÖNKER IS INVINCIBLE!!");
     kulm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1);
 
+    KULM_LOG(example_matrix, "Log test %d\n", 123);
+
     // Call the animation driver for a while
     int16_t j = 0;
     for (j=0; j<50000; j++) {
@@ -103,7 +106,7 @@ int main() {
         }
 
 #ifdef KULM_NON_GPIO_MACHINE
-        kulm_mat_dump_buffer(example_matrix, stdout);
+        kulm_mat_dump_buffer(example_matrix);
         sleep(1);
 #endif
     }

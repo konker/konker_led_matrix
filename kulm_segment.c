@@ -144,9 +144,12 @@ void kulm_seg_off(kulm_segment * const seg) {
 uint16_t kulm_seg_set_text(kulm_segment *seg, const char * const text) {
     //[TODO: should the codepoints buffer by dynamically allocated?]
     seg->text_len = tinyutf8_strlen(text);
+    if (seg->text_len > KULM_TEXT_LEN) {
+        seg->text_len = KULM_TEXT_LEN;
+    }
 
-    size_t i = 0, cnt = 0;
-    while (cnt < seg->text_len && i < KULM_TEXT_LEN) {
+    size_t i=0, cnt=0;
+    while (cnt < seg->text_len) {
         seg->codepoints[cnt] = tinyutf8_next_codepoint(text, &i);
         cnt++;
     }

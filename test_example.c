@@ -68,6 +68,7 @@ int main() {
     // Create a matrix
     kulm_matrix *example_matrix =
                     kulm_mat_create(
+                            stdout,
                             example_display_buffer0,
                             example_display_buffer1,
                             EXAMPLE_MATRIX_WIDTH,
