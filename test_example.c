@@ -41,7 +41,7 @@
 #define EXAMPLE_STB 21
 #define EXAMPLE_CLK 22
 
-#ifdef NON_GPIO_MACHINE
+#ifdef KULM_NON_GPIO_MACHINE
 #   define EXAMPLE_TEXT_SPEED1 2.20
 #else
 #   define EXAMPLE_TEXT_SPEED1 0.002
@@ -53,7 +53,7 @@ int main() {
 
     // Initialize WirinPi if necessary
 #ifndef ARDUINO
-#  ifndef NON_GPIO_MACHINE
+#  ifndef KULM_NON_GPIO_MACHINE
     if (wiringPiSetup()) {
         printf("ERROR Initializing WiringPi. Exiting.");
         return -1;

@@ -41,7 +41,7 @@
 #define EXAMPLE_STB 21
 #define EXAMPLE_CLK 22
 
-#ifdef NON_GPIO_MACHINE
+#ifdef KULM_NON_GPIO_MACHINE
 #   define EXAMPLE_TEXT_SPEED1 2.20
 #   define EXAMPLE_TEXT_SPEED2 4.20
 #else
@@ -55,7 +55,7 @@ int main() {
 
     // Initialize WirinPi if necessary
 #ifndef ARDUINO
-#  ifndef NON_GPIO_MACHINE
+#  ifndef KULM_NON_GPIO_MACHINE
     if (wiringPiSetup()) {
         printf("ERROR Initializing WiringPi. Exiting.");
         return -1;
@@ -141,7 +141,7 @@ int main() {
         // Call the display driver for one row
         kulm_mat_scan(example_matrix);
 
-#ifdef NON_GPIO_MACHINE
+#ifdef KULM_NON_GPIO_MACHINE
         kulm_mat_dump_buffer(example_matrix, stdout);
         sleep(1);
 #endif

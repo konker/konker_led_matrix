@@ -108,7 +108,7 @@ void kulm_mat_init(kulm_matrix * const matrix,
     matrix->font_list = font_list;
     matrix->segment_list = segment_list;
 
-#ifndef NON_GPIO_MACHINE
+#ifndef KULM_NON_GPIO_MACHINE
     // Initilize pin modes
     pinMode(matrix->a, OUTPUT);
     pinMode(matrix->b, OUTPUT);
@@ -207,7 +207,7 @@ void kulm_mat_on(kulm_matrix *matrix) {
 /** Switch on matrix display */
 void kulm_mat_off(kulm_matrix *matrix) {
     matrix->on = false;
-#ifndef NON_GPIO_MACHINE
+#ifndef KULM_NON_GPIO_MACHINE
     digitalWrite(matrix->oe, HIGH);
 #endif
 }

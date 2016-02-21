@@ -35,7 +35,7 @@ extern "C" {
 #ifdef ARDUINO
 #  include <Arduino.h>
 #else
-#  ifndef NON_GPIO_MACHINE
+#  ifndef KULM_NON_GPIO_MACHINE
 #    include <wiringPi.h>
 #    include <wiringShift.h>
 #  endif
@@ -233,7 +233,7 @@ inline void kulm_mat_render_sprite(
 inline void kulm_mat_scan(kulm_matrix * const matrix) {
     if (!matrix->on) return;
 
-#ifndef NON_GPIO_MACHINE
+#ifndef KULM_NON_GPIO_MACHINE
     // Process each 8-pixel byte in the row
     uint8_t offset = KULM_ROW_OFFSET(matrix, matrix->_scan_row);
 
