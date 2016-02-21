@@ -82,7 +82,7 @@ void kulm_seg_destroy(kulm_segment * const seg) {
 
 /** Drive animation */
 void kulm_seg_tick(kulm_segment * const seg) {
-    if (seg->paused) return;
+    if (seg->paused && !seg->_dirty) return;
 
     if (seg->_dirty || seg->text_speed != 0) {
         // Animate and render text

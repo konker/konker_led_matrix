@@ -163,8 +163,6 @@ void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed) {
 
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
-    if (matrix->paused) return;
-
     kulm_segment_list *iter = matrix->segment_list;
     while (iter) {
         kulm_seg_tick(iter->item);
