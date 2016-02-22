@@ -58,7 +58,7 @@ kulm_segment * const kulm_seg_create(
     segment->font_index = font_index;
     segment->visible = true;
     segment->paused = false;
-    segment->mask = false;
+    segment->mask = true;
 
     segment->text_len = 0;
     segment->text_speed = 0;
