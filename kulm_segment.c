@@ -82,7 +82,13 @@ void kulm_seg_destroy(kulm_segment * const seg) {
 
 /** Drive animation */
 void kulm_seg_tick(kulm_segment * const seg) {
-    if (seg->paused && !seg->_dirty) return;
+    if (seg->paused) {
+        if (seg->_dirty) {
+            kulm_seg_clear(seg);
+            kulm_seg_render_text(seg);
+        }
+        return;
+    }
 
     if (seg->_dirty || seg->text_speed != 0) {
         // Animate and render text
@@ -125,7 +131,7 @@ void kulm_seg_start(kulm_segment * const seg) {
 /** Stop animation of the given segment */
 void kulm_seg_stop(kulm_segment * const seg) {
     seg->paused = true;
-    seg->_dirty = true;
+    seg->_dirty = false;
 }
 
 /** Swtich off display of the given segment altogether */

@@ -93,7 +93,6 @@ typedef struct kulm_matrix
 
     // Global matrix state flags
     bool on;
-    bool paused;
 
     // A list of virtual segments which make up the display
     kulm_segment_list *segment_list;
@@ -136,6 +135,12 @@ void kulm_mat_simple_set_text_speed(kulm_matrix * const matrix, float speed);
 /** Set the position of the default full-screen segment's text */
 void kulm_mat_simple_set_text_position(kulm_matrix * const matrix, float text_pos);
 
+/** Start animation of matrix content */
+void kulm_mat_simple_start(kulm_matrix * const matrix);
+
+/** Stop animation of matrix content */
+void kulm_mat_simple_stop(kulm_matrix * const matrix);
+
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix * const matrix);
 
@@ -144,12 +149,6 @@ bool kulm_mat_is_pixel_set(kulm_matrix * const matrix, int16_t x, int16_t y);
 
 /** Clear the entire matrix */
 void kulm_mat_clear(kulm_matrix * const matrix);
-
-/** Start animation of matrix content */
-void kulm_mat_start(kulm_matrix * const matrix);
-
-/** Stop animation of matrix content */
-void kulm_mat_stop(kulm_matrix * const matrix);
 
 /** Switch off matrix display altogether */
 void kulm_mat_on(kulm_matrix * const matrix);

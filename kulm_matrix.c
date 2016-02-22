@@ -82,7 +82,6 @@ kulm_matrix * const kulm_mat_create(
     matrix->clk = clk;
 
     matrix->on = true;
-    matrix->paused = false;
     matrix->_scan_row = 0;
 
     matrix->mask = 0xff;
@@ -166,6 +165,16 @@ void kulm_mat_simple_set_text_position(kulm_matrix * const matrix, float text_po
     kulm_seg_set_text_position(matrix->segment_list->item, text_pos);
 }
 
+/** Start animation of matrix content */
+void kulm_mat_simple_start(kulm_matrix *matrix) {
+    kulm_seg_start(matrix->segment_list->item);
+}
+
+/** Stop animation of matrix content */
+void kulm_mat_simple_stop(kulm_matrix *matrix) {
+    kulm_seg_stop(matrix->segment_list->item);
+}
+
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
     kulm_segment_list *iter = matrix->segment_list;
@@ -203,16 +212,6 @@ void kulm_mat_clear(kulm_matrix *matrix) {
     for (i=0; i<(matrix->height*matrix->_row_width); i++) {
         matrix->display_buffer0[i] = KULM_OFF_BYTE;
     }
-}
-
-/** Start animation of matrix content */
-void kulm_mat_start(kulm_matrix *matrix) {
-    matrix->paused = false;
-}
-
-/** Stop animation of matrix content */
-void kulm_mat_stop(kulm_matrix *matrix) {
-    matrix->paused = true;
 }
 
 /** Switch off matrix display altogether */
