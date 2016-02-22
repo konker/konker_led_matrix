@@ -47,7 +47,6 @@ typedef struct kulm_segment
 
     uint8_t  font_index;
     bool     visible;
-    bool     on;
     bool     paused;
 
     uint32_t codepoints[KULM_TEXT_LEN];
@@ -90,12 +89,6 @@ void kulm_seg_start(kulm_segment * const seg);
 
 /** Stop animation of the given segment */
 void kulm_seg_stop(kulm_segment * const seg);
-
-/** Swtich off display of the given segment altogether */
-void kulm_seg_on(kulm_segment * const seg);
-
-/** Swtich on display of the given segment */
-void kulm_seg_off(kulm_segment * const seg);
 
 /** Set the segment's text content */
 uint16_t kulm_seg_set_text(kulm_segment * const seg, const char *text);

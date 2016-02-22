@@ -57,7 +57,6 @@ kulm_segment * const kulm_seg_create(
 
     segment->font_index = font_index;
     segment->visible = true;
-    segment->on = true;
     segment->paused = false;
 
     segment->text_len = 0;
@@ -132,18 +131,6 @@ void kulm_seg_start(kulm_segment * const seg) {
 void kulm_seg_stop(kulm_segment * const seg) {
     seg->paused = true;
     seg->_dirty = false;
-}
-
-/** Swtich off display of the given segment altogether */
-void kulm_seg_on(kulm_segment * const seg) {
-    seg->on = true;
-    seg->_dirty = true;
-}
-
-/** Swtich on display of the given segment */
-void kulm_seg_off(kulm_segment * const seg) {
-    seg->on = false;
-    seg->_dirty = true;
 }
 
 /** Set the segment's text content */
