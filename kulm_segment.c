@@ -58,6 +58,7 @@ kulm_segment * const kulm_seg_create(
     segment->font_index = font_index;
     segment->visible = true;
     segment->paused = false;
+    segment->mask = false;
 
     segment->text_len = 0;
     segment->text_speed = 0;
@@ -85,6 +86,10 @@ void kulm_seg_tick(kulm_segment * const seg) {
         if (seg->_dirty) {
             kulm_seg_clear(seg);
             kulm_seg_render_text(seg);
+            kulm_mat_mask_region(seg->matrix,
+                                 seg->x, seg->y,
+                                 seg->width, seg->height,
+                                 seg->mask);
         }
         return;
     }
@@ -98,8 +103,13 @@ void kulm_seg_tick(kulm_segment * const seg) {
         else if (seg->text_pos > seg->width) {
             seg->text_pos = -seg->_text_pixel_len;
         }
+
         kulm_seg_clear(seg);
         kulm_seg_render_text(seg);
+        kulm_mat_mask_region(seg->matrix,
+                             seg->x, seg->y,
+                             seg->width, seg->height,
+                             seg->mask);
     }
 }
 
@@ -163,6 +173,11 @@ void kulm_seg_set_text_speed(kulm_segment *seg, float speed) {
 void kulm_seg_set_text_position(kulm_segment * const seg, float text_pos) {
     seg->text_pos = text_pos;
     seg->_dirty = true;
+}
+
+/** Reverse the segment */
+void kulm_seg_reverse(kulm_segment * const seg) {
+    seg->mask = !seg->mask;
 }
 
 /** Render the segment's text */

@@ -85,9 +85,6 @@ typedef struct kulm_matrix
     // A buffer to hold the current frame for display
     uint8_t *display_buffer1;
 
-    // Mask
-    uint8_t mask;
-
     // A list of available fonts and associated font-metrics
     hexfont_list *font_list;
 
@@ -141,6 +138,9 @@ void kulm_mat_simple_start(kulm_matrix * const matrix);
 /** Stop animation of matrix content */
 void kulm_mat_simple_stop(kulm_matrix * const matrix);
 
+/** Reverse the matrix display */
+void kulm_mat_simple_reverse(kulm_matrix * const matrix);
+
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix * const matrix);
 
@@ -155,9 +155,6 @@ void kulm_mat_on(kulm_matrix * const matrix);
 
 /** Switch on matrix display */
 void kulm_mat_off(kulm_matrix * const matrix);
-
-/** Reverse the matrix display */
-void kulm_mat_reverse(kulm_matrix * const matrix);
 
 /** Print a representation of the display buffer to the console */
 void kulm_mat_dump_buffer(kulm_matrix * const matrix);
@@ -175,6 +172,13 @@ inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y)
 inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KULM_BUF_OFFSET(matrix, x, y);
     bitWrite(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH, KULM_OFF);
+}
+
+/** Switch a matrix pixel off */
+inline void kulm_mat_mask_pixel(kulm_matrix * const matrix, int16_t x, int16_t y, bool mask) {
+    size_t p = KULM_BUF_OFFSET(matrix, x, y);
+    bitWrite(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH,
+            bitRead(matrix->display_buffer0[p], x % KULM_BYTE_WIDTH) ^ mask);
 }
 
 /** Copy the buffer0 to buffer1 */
@@ -199,6 +203,24 @@ inline void kulm_mat_clear_region(
             int16_t _y = y + by;
 
             kulm_mat_clear_pixel(matrix, _x, _y);
+        }
+    }
+}
+
+/** Clear a region of the matrix */
+inline void kulm_mat_mask_region(
+                    kulm_matrix * const matrix,
+                    int16_t x, int16_t y,
+                    uint16_t w, uint16_t h,
+                    bool mask)
+{
+    int16_t bx, by;
+    for (by=0; by<h; by++) {
+        for (bx=0; bx<w; bx++) {
+            int16_t _x = x + bx;
+            int16_t _y = y + by;
+
+            kulm_mat_mask_pixel(matrix, _x, _y, mask);
         }
     }
 }
@@ -249,9 +271,6 @@ inline void kulm_mat_scan(kulm_matrix * const matrix) {
 #else
         uint8_t pixel8 = matrix->display_buffer0[offset + x8];
 #endif
-
-        // Apply the mask
-        pixel8 ^= matrix->mask;
 
         // Write each pixel in the byte, in reverse order
         shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);

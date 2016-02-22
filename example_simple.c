@@ -102,7 +102,7 @@ int main() {
 
         // Reverse the display every 2000 scans
         if ((j % 2000) == 0) {
-            kulm_mat_reverse(example_matrix);
+            kulm_mat_simple_reverse(example_matrix);
         }
 
 #ifdef KULM_NON_GPIO_MACHINE

@@ -133,6 +133,8 @@ int main() {
     kulm_seg_set_text(example_segment1, "WORLD!");
     kulm_seg_set_text_speed(example_segment1, EXAMPLE_TEXT_SPEED2);
 
+    kulm_seg_reverse(example_segment1);
+
     // Call the animation driver for a while
     int16_t j = 0;
     for (j=0; j<50000; j++) {

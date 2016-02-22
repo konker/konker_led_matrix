@@ -33,7 +33,9 @@ static void _kulm_mat_sanity_check(kulm_matrix * const matrix);
 
 extern inline void kulm_mat_set_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void kulm_mat_clear_pixel(kulm_matrix * const matrix, int16_t x, int16_t y);
+extern inline void kulm_mat_mask_pixel(kulm_matrix * const matrix, int16_t x, int16_t y, bool mask);
 extern inline void kulm_mat_clear_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
+extern inline void kulm_mat_mask_region(kulm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h, bool mask);
 extern inline void kulm_mat_render_sprite(
                     kulm_matrix * const matrix,
                     hexfont_character * const sprite,
@@ -83,8 +85,6 @@ kulm_matrix * const kulm_mat_create(
 
     matrix->on = true;
     matrix->_scan_row = 0;
-
-    matrix->mask = 0xff;
 
     return matrix;
 }
@@ -175,6 +175,11 @@ void kulm_mat_simple_stop(kulm_matrix *matrix) {
     kulm_seg_stop(matrix->segment_list->item);
 }
 
+/** Reverse the matrix display */
+void kulm_mat_simple_reverse(kulm_matrix * const matrix) {
+    kulm_seg_reverse(matrix->segment_list->item);
+}
+
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
     kulm_segment_list *iter = matrix->segment_list;
@@ -225,11 +230,6 @@ void kulm_mat_off(kulm_matrix *matrix) {
 #ifndef KULM_NON_GPIO_MACHINE
     digitalWrite(matrix->oe, HIGH);
 #endif
-}
-
-/** Reverse the matrix display */
-void kulm_mat_reverse(kulm_matrix * const matrix) {
-    matrix->mask = ~matrix->mask;
 }
 
 void kulm_mat_dump_buffer(kulm_matrix * const matrix) {

@@ -48,6 +48,7 @@ typedef struct kulm_segment
     uint8_t  font_index;
     bool     visible;
     bool     paused;
+    bool     mask;
 
     uint32_t codepoints[KULM_TEXT_LEN];
     size_t   text_len;
@@ -98,6 +99,9 @@ void kulm_seg_set_text_speed(kulm_segment * const seg, float speed);
 
 /** Set the position of the segment's text */
 void kulm_seg_set_text_position(kulm_segment * const seg, float text_pos);
+
+/** Reverse the segment */
+void kulm_seg_reverse(kulm_segment * const seg);
 
 /** Render the segment's text */
 void kulm_seg_render_text(kulm_segment * const seg);
