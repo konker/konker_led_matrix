@@ -84,12 +84,13 @@ void kulm_seg_destroy(kulm_segment * const seg) {
 void kulm_seg_tick(kulm_segment * const seg) {
     if (seg->paused) {
         if (seg->_dirty) {
-            kulm_seg_clear(seg);
             kulm_seg_render_text(seg);
-            kulm_mat_mask_region(seg->matrix,
-                                 seg->x, seg->y,
-                                 seg->width, seg->height,
-                                 seg->mask);
+            if (seg->mask) {
+                kulm_mat_mask_region(seg->matrix,
+                                     seg->x, seg->y,
+                                     seg->width, seg->height,
+                                     seg->mask);
+            }
         }
         return;
     }
@@ -104,12 +105,13 @@ void kulm_seg_tick(kulm_segment * const seg) {
             seg->text_pos = -seg->_text_pixel_len;
         }
 
-        kulm_seg_clear(seg);
         kulm_seg_render_text(seg);
-        kulm_mat_mask_region(seg->matrix,
-                             seg->x, seg->y,
-                             seg->width, seg->height,
-                             seg->mask);
+        if (seg->mask) {
+            kulm_mat_mask_region(seg->matrix,
+                                 seg->x, seg->y,
+                                 seg->width, seg->height,
+                                 seg->mask);
+        }
     }
 }
 

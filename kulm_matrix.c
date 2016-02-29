@@ -182,6 +182,7 @@ void kulm_mat_simple_reverse(kulm_matrix * const matrix) {
 
 /** Drive animation */
 void kulm_mat_tick(kulm_matrix *matrix) {
+    kulm_mat_clear(matrix);
     kulm_segment_list *iter = matrix->segment_list;
     while (iter) {
         kulm_seg_tick(iter->item);
