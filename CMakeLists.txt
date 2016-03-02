@@ -5,6 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
 option(KLM_SHARED_LIBRARY "Build a shared library" OFF)
 option(KLM_NON_GPIO_MACHINE "Build target is a non-GPIO machine such a laptop" OFF)
+option(KLM_NO_DOUBLE_BUFFER "Disable double buffering" OFF)
 
 if(NOT KLM_DRIVER)
     message(FATAL_ERROR "No KLM_DRIVER specified. Aborting.")
@@ -44,6 +45,10 @@ endforeach()
 
 if(KLM_NON_GPIO_MACHINE)
     add_definitions(-DKLM_NON_GPIO_MACHINE)
+endif()
+
+if(KLM_NO_DOUBLE_BUFFER)
+    add_definitions(-DKLM_NO_DOUBLE_BUFFER)
 endif()
 
 add_executable(example examples/example.c)
