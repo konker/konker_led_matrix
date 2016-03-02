@@ -8,6 +8,8 @@ option(KLM_NON_GPIO_MACHINE "Build target is a non-GPIO machine such a laptop" O
 
 if(NOT KLM_DRIVER)
     message(FATAL_ERROR "No KLM_DRIVER specified. Aborting.")
+else()
+    message("Using KLM_DRIVER: ${KLM_DRIVER}")
 endif()
 
 include_directories(include)
