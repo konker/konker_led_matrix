@@ -20,17 +20,32 @@ link_directories(${CMAKE_SOURCE_DIR}/../hexfont/build)
 link_directories(${CMAKE_SOURCE_DIR}/../tinyutf8/build)
 
 file(GLOB LIBSOURCES "src/*.c")
-set(DRIVERSOURCE "${CMAKE_CURRENT_SOURCE_DIR}/drivers/klm_driver_${KLM_DRIVER}.c")
+file(GLOB DRIVERSOURCES "drivers/*.c")
 
+# Create a library for the common code
 if(KLM_SHARED_LIBRARY)
-    add_library(klm SHARED ${LIBSOURCES} ${DRIVERSOURCE})
+    add_library(klm SHARED ${LIBSOURCES})
 else()
-    add_library(klm STATIC ${LIBSOURCES} ${DRIVERSOURCE})
+    add_library(klm STATIC ${LIBSOURCES})
 endif()
+
+# Create a library for each driver
+foreach(DRIVER ${DRIVERSOURCES})
+    # Get the file name part without extension into DRIVER_ID
+    get_filename_component(DRIVER_ID ${DRIVER} NAME_WE)
+    message("DRIVER ID: ${DRIVER_ID}")
+
+    if(KLM_SHARED_LIBRARY)
+        add_library(${DRIVER_ID} SHARED ${DRIVER})
+    else()
+        add_library(${DRIVER_ID} STATIC ${DRIVER})
+    endif()
+endforeach()
 
 if(KLM_NON_GPIO_MACHINE)
     add_definitions(-DKLM_NON_GPIO_MACHINE)
 endif()
 
 add_executable(example examples/example.c)
-target_link_libraries(example klm hexfont tinyutf8)
+target_link_libraries(example klm ${KLM_DRIVER} hexfont tinyutf8)
+
