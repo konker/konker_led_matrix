@@ -22,6 +22,10 @@
  */
 
 
+#include "klm_matrix.h"
+#include "klm_segment.h"
+
+
 /** Switch a matrix pixel on */
 void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KLM_BUF_OFFSET(matrix, x, y);
