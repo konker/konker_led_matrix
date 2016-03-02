@@ -31,9 +31,12 @@
 
 static void _klm_mat_sanity_check(klm_matrix * const matrix);
 
+/*
 extern inline void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
 extern inline void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
+extern inline void klm_mat_scan(klm_matrix * const matrix);
+*/
 extern inline void klm_mat_clear_region(klm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
 extern inline void klm_mat_mask_region(klm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h, bool mask);
 extern inline void klm_mat_render_sprite(
@@ -42,7 +45,6 @@ extern inline void klm_mat_render_sprite(
                     int16_t x, int16_t y,
                     int16_t clip_x0, int16_t clip_y0,
                     int16_t clip_x1, int16_t clip_y1);
-extern inline void klm_mat_scan(klm_matrix * const matrix);
 extern inline void klm_mat_swap_buffers(klm_matrix * const matrix);
 
 /**

@@ -64,6 +64,12 @@ extern "C" {
 #define KLM_LOG(matrix, ...) fprintf(matrix->logfp, __VA_ARGS__); \
                               fflush(matrix->logfp);
 
+// Forward declare driver methods
+extern void klm_mat_scan(klm_matrix * const matrix);
+extern void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
+extern void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
+extern void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
+
 // Forward declare klm_segment because of circular refs
 typedef struct klm_segment klm_segment;
 
@@ -162,25 +168,6 @@ void klm_mat_dump_buffer(klm_matrix * const matrix);
 // Inline funtions
 // ----------------------------------------------------------------------------
 
-/** Switch a matrix pixel on */
-inline void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y) {
-    size_t p = KLM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH, KLM_ON);
-}
-
-/** Switch a matrix pixel off */
-inline void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y) {
-    size_t p = KLM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH, KLM_OFF);
-}
-
-/** Switch a matrix pixel off */
-inline void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask) {
-    size_t p = KLM_BUF_OFFSET(matrix, x, y);
-    bitWrite(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH,
-            bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) ^ mask);
-}
-
 /** Copy the buffer0 to buffer1 */
 inline void klm_mat_swap_buffers(klm_matrix * const matrix) {
 #ifndef KLM_NO_DOUBLE_BUFFER
@@ -253,52 +240,6 @@ inline void klm_mat_render_sprite(
             }
         }
     }
-}
-
-/** Drive the matrix display */
-inline void klm_mat_scan(klm_matrix * const matrix) {
-    if (!matrix->on) return;
-
-#ifndef KLM_NON_GPIO_MACHINE
-    // Process each 8-pixel byte in the row
-    uint8_t offset = KLM_ROW_OFFSET(matrix, matrix->_scan_row);
-
-    // Process the row in reverse order
-    int16_t x8;
-    for (x8=matrix->_row_width-1; x8>=0; x8--) {
-#ifndef KLM_NO_DOUBLE_BUFFER
-        uint8_t pixel8 = matrix->display_buffer1[offset + x8];
-#else
-        uint8_t pixel8 = matrix->display_buffer0[offset + x8];
-#endif
-
-        // Write each pixel in the byte, in reverse order
-        shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);
-    }
-
-    // Disable display
-    digitalWrite(matrix->oe, HIGH);
-
-    // Display the rows in reverse order
-    uint16_t display_row = (matrix->height - 1 - matrix->_scan_row);
-
-    // Select row
-    digitalWrite(matrix->a, (display_row & 0x01));
-    digitalWrite(matrix->b, (display_row & 0x02));
-    digitalWrite(matrix->c, (display_row & 0x04));
-    digitalWrite(matrix->d, (display_row & 0x08));
-
-    // Latch data
-    digitalWrite(matrix->stb, LOW);
-    digitalWrite(matrix->stb, HIGH);
-    digitalWrite(matrix->stb, LOW);
-
-    // Enable display
-    digitalWrite(matrix->oe, LOW);
-
-    // Next row, wrap around at the bottom
-    matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
-#endif
 }
 
 #ifdef __cplusplus
