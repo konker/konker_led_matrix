@@ -107,6 +107,9 @@ typedef struct klm_matrix
 } klm_matrix;
 
 
+/** Call any necessary one-time initialization */
+void klm_mat_begin();
+
 /** Create a matrix object by specifying its physical characteristics */
 klm_matrix * const klm_mat_create(
                             FILE *logfp,

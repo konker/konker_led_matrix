@@ -53,15 +53,8 @@
 int main() {
     printf("Konker's LED Matrix library\n");
 
-    // Initialize WirinPi if necessary
-#ifndef ARDUINO
-#  ifndef KLM_NON_GPIO_MACHINE
-    if (wiringPiSetup()) {
-        printf("ERROR Initializing WiringPi. Exiting.");
-        return -1;
-    }
-#  endif
-#endif
+    klm_mat_begin();
+
     uint8_t example_display_buffer0[
         KLM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
     uint8_t example_display_buffer1[
