@@ -48,5 +48,7 @@ void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool ma
 /** Drive the matrix display */
 void klm_mat_scan(klm_matrix * const matrix) {
     if (!matrix->on) return;
+
+    kulm_mat_dump_buffer(matrix);
 }
 
