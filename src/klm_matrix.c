@@ -47,17 +47,21 @@ extern inline void klm_mat_render_sprite(
                     int16_t clip_x1, int16_t clip_y1);
 extern inline void klm_mat_swap_buffers(klm_matrix * const matrix);
 
-/** Call any necessary one-time initialization */
-void klm_mat_begin() {
+/**
+ * Call any necessary one-time initialization
+ *
+ * @return  True if the system was initialized correctly
+ */
+bool klm_mat_begin() {
     // Initialize WirinPi if necessary
 #ifndef ARDUINO
 #  ifndef KLM_NON_GPIO_MACHINE
     if (wiringPiSetup()) {
-        fprintf(stderr, "ERROR Initializing WiringPi. Exiting.");
-        return -1;
+        return false;
     }
 #  endif
 #endif
+    return true;
 }
 
 /**

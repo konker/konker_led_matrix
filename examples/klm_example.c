@@ -53,7 +53,10 @@
 int main() {
     printf("Konker's LED Matrix library\n");
 
-    klm_mat_begin();
+    if (!klm_mat_begin()) {
+        fprintf(stderr, "Could not initialize matrix system. Aborting");
+        exit(EXIT_FAILURE);
+    }
 
     uint8_t example_display_buffer0[
         KLM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
