@@ -51,13 +51,13 @@ if(KLM_NO_DOUBLE_BUFFER)
     add_definitions(-DKLM_NO_DOUBLE_BUFFER)
 endif()
 
-add_executable(example examples/example.c)
-target_link_libraries(example klm ${KLM_DRIVER} hexfont tinyutf8)
+add_executable(klm_example examples/klm_example.c)
+target_link_libraries(klm_example klm ${KLM_DRIVER} hexfont tinyutf8)
 
-add_executable(example_simple examples/example_simple.c)
-target_link_libraries(example_simple klm ${KLM_DRIVER} hexfont tinyutf8)
+add_executable(klm_example_simple examples/klm_example_simple.c)
+target_link_libraries(klm_example_simple klm ${KLM_DRIVER} hexfont tinyutf8)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
-add_executable(example_test examples/example_test.c)
-target_link_libraries(example_test klm ${KLM_DRIVER} hexfont tinyutf8)
+add_executable(klm_example_test examples/klm_example_test.c)
+target_link_libraries(klm_example_test klm ${KLM_DRIVER} hexfont tinyutf8)
 
