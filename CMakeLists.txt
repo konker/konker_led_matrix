@@ -6,7 +6,6 @@ set(DEFAULT_HEXFONT_DIR "${CMAKE_SOURCE_DIR}/../hexfont")
 set(DEFAULT_TINYUTF8_DIR "${CMAKE_SOURCE_DIR}/../tinyutf8")
 
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
-option(KLM_SHARED_LIBRARY "Build a shared library" OFF)
 option(KLM_NON_GPIO_MACHINE "Build target is a non-GPIO machine such a laptop" OFF)
 option(KLM_NO_DOUBLE_BUFFER "Disable double buffering" OFF)
 
@@ -49,11 +48,7 @@ file(GLOB LIBSOURCES "src/*.c")
 file(GLOB DRIVERSOURCES "drivers/*.c")
 
 # Create a library for the common code
-if(KLM_SHARED_LIBRARY)
-    add_library(klm SHARED ${LIBSOURCES})
-else()
-    add_library(klm STATIC ${LIBSOURCES})
-endif()
+add_library(klm ${LIBSOURCES})
 
 # Create a library for each driver
 foreach(DRIVER ${DRIVERSOURCES})
@@ -61,11 +56,7 @@ foreach(DRIVER ${DRIVERSOURCES})
     get_filename_component(DRIVER_ID ${DRIVER} NAME_WE)
     message("DRIVER ID: ${DRIVER_ID}")
 
-    if(KLM_SHARED_LIBRARY)
-        add_library(${DRIVER_ID} SHARED ${DRIVER})
-    else()
-        add_library(${DRIVER_ID} STATIC ${DRIVER})
-    endif()
+    add_library(${DRIVER_ID} ${DRIVER})
 endforeach()
 
 add_executable(klm_example examples/klm_example.c)
