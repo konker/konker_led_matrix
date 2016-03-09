@@ -205,32 +205,18 @@ void klm_mat_tick(klm_matrix *matrix) {
     klm_mat_swap_buffers(matrix);
 }
 
-/** Query whether or not the given pixel has been set */
-bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y) {
-    size_t p = KLM_BUF_OFFSET(matrix, x, y);
-#ifndef KLM_NO_DOUBLE_BUFFER
-    if (bitRead(matrix->display_buffer1[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
-        return true;
+/** Drive animation with lock for swap buffers */
+void klm_mat_tick_lock(klm_matrix * const matrix, bool *lock) {
+    klm_mat_clear(matrix);
+    klm_segment_list *iter = matrix->segment_list;
+    while (iter) {
+        klm_seg_tick(iter->item);
+        iter = iter->next;
     }
-#else
-    if (bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
-        return true;
-    }
-#endif
-    return false;
-}
 
-/** Clear the entire matrix */
-void klm_mat_clear(klm_matrix *matrix) {
-    int16_t i;
-#ifndef KLM_NO_DOUBLE_BUFFER
-    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
-        matrix->display_buffer1[i] = KLM_OFF_BYTE;
-    }
-#endif
-    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
-        matrix->display_buffer0[i] = KLM_OFF_BYTE;
-    }
+    *lock = true;
+    klm_mat_swap_buffers(matrix);
+    *lock = false;
 }
 
 /** Switch off matrix display altogether */

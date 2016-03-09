@@ -156,6 +156,9 @@ void klm_mat_simple_reverse(klm_matrix * const matrix);
 /** Drive animation */
 void klm_mat_tick(klm_matrix * const matrix);
 
+/** Drive animation with lock for swap buffers */
+void klm_mat_tick_lock(klm_matrix * const matrix, bool *lock);
+
 /** Query whether or not the given pixel has been set */
 bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y);
 
