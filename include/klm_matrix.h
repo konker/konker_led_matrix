@@ -65,10 +65,13 @@ extern "C" {
                               fflush(matrix->logfp);
 
 // Forward declare driver methods
-extern void klm_mat_scan(klm_matrix * const matrix);
-extern void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
-extern void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
-extern void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
+void klm_mat_scan(klm_matrix * const matrix);
+void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
+void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
+bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y);
+void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
+void klm_mat_clear(klm_matrix *matrix);
+void klm_mat_dump_buffer(klm_matrix * const matrix);
 
 // Forward declare klm_segment because of circular refs
 typedef struct klm_segment klm_segment;

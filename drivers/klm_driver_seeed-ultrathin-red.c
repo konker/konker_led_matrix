@@ -45,6 +45,62 @@ void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool ma
             bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) ^ mask);
 }
 
+/** Query whether or not the given pixel has been set */
+bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y) {
+    size_t p = KLM_BUF_OFFSET(matrix, x, y);
+#ifndef KLM_NO_DOUBLE_BUFFER
+    if (bitRead(matrix->display_buffer1[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
+        return true;
+    }
+#else
+    if (bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
+        return true;
+    }
+#endif
+    return false;
+}
+
+/** Clear the entire matrix */
+void klm_mat_clear(klm_matrix *matrix) {
+    int16_t i;
+#ifndef KLM_NO_DOUBLE_BUFFER
+    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
+        matrix->display_buffer1[i] = KLM_OFF_BYTE;
+    }
+#endif
+    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
+        matrix->display_buffer0[i] = KLM_OFF_BYTE;
+    }
+}
+
+void klm_mat_dump_buffer(klm_matrix * const matrix) {
+    int16_t i;
+    for (i=0; i<matrix->height*matrix->_row_width; i++) {
+        KLM_LOG(matrix, "%02x ", matrix->display_buffer0[i]);
+    }
+    KLM_LOG(matrix, "\n");
+#ifndef KLM_NO_DOUBLE_BUFFER
+    for (i=0; i<matrix->height*matrix->_row_width; i++) {
+        KLM_LOG(matrix, "%02x ", matrix->display_buffer1[i]);
+    }
+    KLM_LOG(matrix, "\n");
+#endif
+
+    int16_t x, y;
+    for (y=0; y<matrix->height; y++) {
+        for (x=0; x<matrix->width; x++) {
+            if (klm_mat_is_pixel_set(matrix, x, y)) {
+                KLM_LOG(matrix, "# ");
+            }
+            else {
+                KLM_LOG(matrix, ". ");
+            }
+        }
+        KLM_LOG(matrix, "\n");
+    }
+    KLM_LOG(matrix, "\n");
+}
+
 /** Drive the matrix display */
 void klm_mat_scan(klm_matrix * const matrix) {
     if (!matrix->on) return;
