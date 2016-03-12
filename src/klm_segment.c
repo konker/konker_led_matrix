@@ -82,6 +82,10 @@ void klm_seg_destroy(klm_segment * const seg) {
 
 /** Drive animation */
 void klm_seg_tick(klm_segment * const seg) {
+    if (!seg->visible) {
+        return;
+    }
+
     if (seg->paused) {
         if (seg->_dirty) {
             klm_seg_render_text(seg);
