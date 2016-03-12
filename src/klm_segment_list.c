@@ -54,10 +54,8 @@ void klm_segment_list_destroy(klm_segment_list * const head) {
 
 void klm_segment_list_append(klm_segment_list * const head, klm_segment * const new_item) {
     klm_segment_list *tail = head;
-    klm_segment_list *iter = head;
-    while (iter->next) {
-        tail = iter;
-        iter = iter->next;
+    while (tail->next) {
+        tail = tail->next;
     }
 
     if (tail->item == NULL) {
@@ -69,17 +67,20 @@ void klm_segment_list_append(klm_segment_list * const head, klm_segment * const 
 }
 
 uint16_t klm_segment_list_get_length(klm_segment_list * const head) {
+    if (head == NULL) {
+        return 0;
+    }
+
     uint16_t ret = 0;
-    klm_segment_list *iter = head;
-    while (iter->next) {
+    klm_segment_list *iter;
+    for (iter=head; iter!=NULL; iter=iter->next) {
         ret++;
-        iter = iter->next;
     }
     return ret;
 }
 
 klm_segment * const klm_segment_list_get_nth(klm_segment_list * const head, int16_t n) {
-    if (klm_segment_list_get_length(head) < n) {
+    if (klm_segment_list_get_length(head) <= n) {
         return NULL;
     }
 
