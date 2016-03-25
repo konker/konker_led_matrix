@@ -38,9 +38,11 @@ klm_segment_list * const klm_segment_list_create(klm_segment * const item) {
 }
 
 void klm_segment_list_destroy(klm_segment_list * const head) {
-    klm_segment_list *tmp;
-    klm_segment_list *iter = head;
+    if (head == NULL) {
+        return;
+    }
 
+    klm_segment_list *tmp, *iter = head;
     while (iter->next) {
         tmp = iter;
         iter = iter->next;
@@ -53,6 +55,10 @@ void klm_segment_list_destroy(klm_segment_list * const head) {
 }
 
 void klm_segment_list_append(klm_segment_list * const head, klm_segment * const new_item) {
+    if (head == NULL) {
+        return;
+    }
+
     klm_segment_list *tail = head;
     while (tail->next) {
         tail = tail->next;
