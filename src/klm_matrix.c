@@ -48,12 +48,10 @@ extern inline void klm_mat_swap_buffers(klm_matrix * const matrix);
  */
 bool klm_mat_begin() {
     // Initialize WirinPi if necessary
-#ifndef ARDUINO
-#  ifndef KLM_NON_GPIO_MACHINE
+#ifdef KLM_WIRING_PI
     if (wiringPiSetup()) {
         return false;
     }
-#  endif
 #endif
     return true;
 }

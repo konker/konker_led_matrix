@@ -35,7 +35,7 @@ extern "C" {
 #ifdef ARDUINO
 #  include <Arduino.h>
 #else
-#  ifndef KLM_NON_GPIO_MACHINE
+#  ifdef KLM_WIRING_PI
 #    include <wiringPi.h>
 #    include <wiringShift.h>
 #  endif
@@ -46,6 +46,11 @@ extern "C" {
 #  define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 #endif
 
+#if !defined(ARDUINO) && !defined(KLM_WIRING_PI)
+#define KLM_NON_GPIO_MACHINE
+#endif
+
+#include <time.h>
 #include <hexfont.h>
 #include <hexfont_list.h>
 #include "klm_segment.h"

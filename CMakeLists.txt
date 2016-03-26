@@ -6,7 +6,7 @@ set(DEFAULT_HEXFONT_DIR "${CMAKE_SOURCE_DIR}/../hexfont")
 set(DEFAULT_TINYUTF8_DIR "${CMAKE_SOURCE_DIR}/../tinyutf8")
 
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
-option(KLM_NON_GPIO_MACHINE "Build target is a non-GPIO machine such a laptop" OFF)
+option(KLM_WIRING_PI "Build target is a Raspberry Pi using the WiringPi library" OFF)
 option(KLM_NO_DOUBLE_BUFFER "Disable double buffering" OFF)
 
 option(HEXFONT_DIR "Location of the hexfont library" OFF)
@@ -36,8 +36,8 @@ include_directories(${TINYUTF8_DIR}/include)
 link_directories(${HEXFONT_DIR}/build)
 link_directories(${TINYUTF8_DIR}/build)
 
-if(KLM_NON_GPIO_MACHINE)
-    add_definitions(-DKLM_NON_GPIO_MACHINE)
+if(KLM_WIRING_PI)
+    add_definitions(-DKLM_WIRING_PI)
 endif()
 
 if(KLM_NO_DOUBLE_BUFFER)
