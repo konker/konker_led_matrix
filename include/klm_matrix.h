@@ -196,7 +196,7 @@ void klm_mat_dump_buffer(klm_matrix * const matrix);
 // ----------------------------------------------------------------------------
 
 /** Copy the buffer0 to buffer1 */
-inline void klm_mat_swap_buffers(klm_matrix * const matrix) {
+static inline void klm_mat_swap_buffers(klm_matrix * const matrix) {
 #ifndef KLM_NO_DOUBLE_BUFFER
     uint8_t *tmp = matrix->display_buffer1;
     matrix->display_buffer1 = matrix->display_buffer0;
@@ -205,7 +205,7 @@ inline void klm_mat_swap_buffers(klm_matrix * const matrix) {
 }
 
 /** Clear a region of the matrix */
-inline void klm_mat_clear_region(
+static inline void klm_mat_clear_region(
                     klm_matrix * const matrix,
                     int16_t x, int16_t y,
                     uint16_t w, uint16_t h)
@@ -222,7 +222,7 @@ inline void klm_mat_clear_region(
 }
 
 /** Clear a region of the matrix */
-inline void klm_mat_mask_region(
+static inline void klm_mat_mask_region(
                     klm_matrix * const matrix,
                     int16_t x, int16_t y,
                     uint16_t w, uint16_t h,
@@ -240,7 +240,7 @@ inline void klm_mat_mask_region(
 }
 
 /** Set a region of pixels from a source sprite array */
-inline void klm_mat_render_sprite(
+static inline void klm_mat_render_sprite(
                     klm_matrix * const matrix,
                     hexfont_character * const sprite,
                     int16_t x, int16_t y,
