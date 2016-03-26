@@ -144,6 +144,11 @@ void klm_mat_scan(klm_matrix * const matrix) {
 
     // Next row, wrap around at the bottom
     matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
+
+    // Tick the matrix animation loop
+    if (matrix->_scan_row == 0) {
+        klm_mat_tick(matrix);
+    }
 #endif
 }
 

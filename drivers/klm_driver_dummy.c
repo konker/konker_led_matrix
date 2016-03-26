@@ -80,6 +80,7 @@ void klm_mat_scan(klm_matrix * const matrix) {
     if (!matrix->on) return;
 
     klm_mat_dump_buffer(matrix);
+    klm_mat_tick(matrix);
 #ifdef KLM_NON_GPIO_MACHINE
     sleep(1);
 #endif

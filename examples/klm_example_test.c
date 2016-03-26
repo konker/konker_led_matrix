@@ -88,9 +88,6 @@ int main() {
     // Call the animation driver for a while
     int16_t j = 0;
     for (j=0; j<1000; j++) {
-        // Update the animation
-        klm_mat_tick(example_matrix);
-
         // Call the display driver for one row
         klm_mat_scan(example_matrix);
     }

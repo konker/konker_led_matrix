@@ -67,7 +67,19 @@ extern "C" {
 #define KLM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
 #define KLM_BUF_OFFSET(matrix, x, y) (KLM_ROW_OFFSET(matrix, y)+x/KLM_BYTE_WIDTH)
 #define KLM_LOG(matrix, ...) fprintf(matrix->logfp, __VA_ARGS__); \
-                              fflush(matrix->logfp);
+                             fflush(matrix->logfp);
+#define KLM_LOCK(lock) if (lock != NULL) { *lock = true; }
+#define KLM_UNLOCK(lock) if (lock != NULL) { *lock = false; }
+
+#define KLM_ONE_MILLION 1000000
+#define KLM_ONE_THOUSAND 1000
+#define KLM_NOW_MICROSECS(var, time_spec_var) \
+        clock_gettime(CLOCK_REALTIME, &time_spec_var); \
+        var =  time_spec_var.tv_sec * KLM_ONE_MILLION; \
+        var += time_spec_var.tv_nsec / KLM_ONE_THOUSAND; \
+
+// 1 million => 1ms
+#define KLM_TICK_PERIOD_NANOS 10 * KLM_ONE_MILLION
 
 // Forward declare driver methods
 void klm_mat_scan(klm_matrix * const matrix);
@@ -111,6 +123,10 @@ typedef struct klm_matrix
     // Internal vars
     uint16_t _row_width;
     uint16_t _scan_row;
+
+    struct timespec now_t;
+    int64_t micros_0;
+    int64_t micros_1;
 
 } klm_matrix;
 
@@ -160,9 +176,6 @@ void klm_mat_simple_reverse(klm_matrix * const matrix);
 
 /** Drive animation */
 void klm_mat_tick(klm_matrix * const matrix);
-
-/** Drive animation with lock for swap buffers */
-void klm_mat_tick_lock(klm_matrix * const matrix, bool *lock);
 
 /** Query whether or not the given pixel has been set */
 bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y);
