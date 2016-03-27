@@ -82,13 +82,8 @@ extern "C" {
 #define KLM_TICK_PERIOD_NANOS 10 * KLM_ONE_MILLION
 
 // Forward declare driver methods
-void klm_mat_scan(klm_matrix * const matrix);
-void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
-void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
-bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y);
-void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
-void klm_mat_clear(klm_matrix *matrix);
-void klm_mat_dump_buffer(klm_matrix * const matrix);
+    /*
+*/
 
 // Forward declare klm_segment because of circular refs
 typedef struct klm_segment klm_segment;
@@ -177,9 +172,6 @@ void klm_mat_simple_reverse(klm_matrix * const matrix);
 /** Drive animation */
 void klm_mat_tick(klm_matrix * const matrix);
 
-/** Query whether or not the given pixel has been set */
-bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y);
-
 /** Clear the entire matrix */
 void klm_mat_clear(klm_matrix * const matrix);
 
@@ -189,12 +181,32 @@ void klm_mat_on(klm_matrix * const matrix);
 /** Switch on matrix display */
 void klm_mat_off(klm_matrix * const matrix);
 
+// Driver functions
+// ----------------------------------------------------------------------------
+/** Drive the matrix hardware */
+extern void klm_mat_scan(klm_matrix * const matrix);
+
+/** Set a pixel */
+extern void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
+
+/** Clear a pixel */
+extern void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
+
+/** Apply a mask to a given pixel */
+extern void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
+
+/** Clear the matrix */
+extern void klm_mat_clear(klm_matrix *matrix);
+
+/** Query whether or not the given pixel has been set */
+extern bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y);
+
 /** Print a representation of the display buffer to the console */
-void klm_mat_dump_buffer(klm_matrix * const matrix);
+extern void klm_mat_dump_buffer(klm_matrix * const matrix);
+
 
 // Inline funtions
 // ----------------------------------------------------------------------------
-
 /** Copy the buffer0 to buffer1 */
 static inline void klm_mat_swap_buffers(klm_matrix * const matrix) {
 #ifndef KLM_NO_DOUBLE_BUFFER
