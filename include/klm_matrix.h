@@ -74,12 +74,12 @@ extern "C" {
 #define KLM_ONE_MILLION 1000000
 #define KLM_ONE_THOUSAND 1000
 #define KLM_NOW_MICROSECS(var, time_spec_var) \
-        clock_gettime(CLOCK_REALTIME, &time_spec_var); \
+        clock_gettime(CLOCK_MONOTONIC, &time_spec_var); \
         var =  time_spec_var.tv_sec * KLM_ONE_MILLION; \
         var += time_spec_var.tv_nsec / KLM_ONE_THOUSAND; \
 
-// 1 million => 1ms
-#define KLM_TICK_PERIOD_NANOS 10 * KLM_ONE_MILLION
+// 1 thousand => 1 millisecond
+#define KLM_TICK_PERIOD_MICROS 100 * KLM_ONE_THOUSAND
 
 // Forward declare driver methods
     /*
