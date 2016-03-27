@@ -90,10 +90,10 @@ void klm_mat_dump_buffer(klm_matrix * const matrix) {
     for (y=0; y<matrix->height; y++) {
         for (x=0; x<matrix->width; x++) {
             if (klm_mat_is_pixel_set(matrix, x, y)) {
-                KLM_LOG(matrix, "# ");
+                KLM_LOG(matrix, ". ");
             }
             else {
-                KLM_LOG(matrix, ". ");
+                KLM_LOG(matrix, "# ");
             }
         }
         KLM_LOG(matrix, "\n");
