@@ -148,17 +148,19 @@ void klm_mat_simple_init(klm_matrix * const matrix,
 /** Set the default full-screen segment's text content */
 uint16_t klm_mat_simple_set_text(klm_matrix * const matrix, const char *text);
 
+#ifdef KLM_NATIVE_ANIMATION
 /** Set the animation scroll speed of the default full-screen segment in pixels per frame */
 void klm_mat_simple_set_text_speed(klm_matrix * const matrix, float speed);
-
-/** Set the position of the default full-screen segment's text */
-void klm_mat_simple_set_text_position(klm_matrix * const matrix, float text_pos);
 
 /** Start animation of matrix content */
 void klm_mat_simple_start(klm_matrix * const matrix);
 
 /** Stop animation of matrix content */
 void klm_mat_simple_stop(klm_matrix * const matrix);
+#endif
+
+/** Set the position of the default full-screen segment's text */
+void klm_mat_simple_set_text_position(klm_matrix * const matrix, float text_pos);
 
 /** Reverse the matrix display */
 void klm_mat_simple_reverse(klm_matrix * const matrix);

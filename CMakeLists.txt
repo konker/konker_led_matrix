@@ -8,6 +8,7 @@ set(DEFAULT_TINYUTF8_DIR "${CMAKE_SOURCE_DIR}/../tinyutf8")
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
 option(KLM_WIRING_PI "Build target is a Raspberry Pi using the WiringPi library" OFF)
 option(KLM_NO_DOUBLE_BUFFER "Disable double buffering" OFF)
+option(KLM_NATIVE_ANIMATION "Enable native animation loop" OFF)
 
 option(TINYHEXFONT_DIR "Location of the hexfont library" OFF)
 option(TINYUTF8_DIR "Location of the tinyutf8 library" OFF)
@@ -42,6 +43,10 @@ endif()
 
 if(KLM_NO_DOUBLE_BUFFER)
     add_definitions(-DKLM_NO_DOUBLE_BUFFER)
+endif()
+
+if(KLM_NATIVE_ANIMATION)
+    add_definitions(-DKLM_NATIVE_ANIMATION)
 endif()
 
 file(GLOB LIBSOURCES "src/*.c")

@@ -84,7 +84,9 @@ int main() {
 
     klm_mat_simple_init(example_matrix, example_font);
     klm_mat_simple_set_text(example_matrix, "KÖNKER IS INVINCIBLE!!");
+#ifdef KLM_NATIVE_ANIMATION
     klm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1);
+#endif
 
     KLM_LOG(example_matrix, "Log test %d\n", 123);
 

@@ -61,7 +61,9 @@ klm_segment * const klm_seg_create(
     segment->mask = true;
 
     segment->text_len = 0;
+#ifdef KLM_NATIVE_ANIMATION
     segment->text_speed = 0;
+#endif
     segment->text_pos = 0;
 
     int i;
@@ -86,6 +88,7 @@ void klm_seg_tick(klm_segment * const seg) {
         return;
     }
 
+#ifdef KLM_NATIVE_ANIMATION
     if (seg->paused) {
         if (seg->_dirty) {
             klm_seg_render_text(seg);
@@ -117,6 +120,17 @@ void klm_seg_tick(klm_segment * const seg) {
                                  seg->mask);
         }
     }
+#else
+    if (seg->_dirty) {
+        klm_seg_render_text(seg);
+        if (seg->mask) {
+            klm_mat_mask_region(seg->matrix,
+                                 seg->x, seg->y,
+                                 seg->width, seg->height,
+                                 seg->mask);
+        }
+    }
+#endif
 }
 
 /** Clear a particular segment */
@@ -135,18 +149,6 @@ void klm_seg_hide(klm_segment * const seg) {
     klm_seg_clear(seg);
     seg->visible = false;
     seg->_dirty = true;
-}
-
-/** Start animation of the given segment */
-void klm_seg_start(klm_segment * const seg) {
-    seg->paused = false;
-    seg->_dirty = true;
-}
-
-/** Stop animation of the given segment */
-void klm_seg_stop(klm_segment * const seg) {
-    seg->paused = true;
-    seg->_dirty = false;
 }
 
 /** Set the segment's text content */
@@ -169,11 +171,25 @@ uint16_t klm_seg_set_text(klm_segment *seg, const char * const text) {
     return seg->_text_pixel_len;
 }
 
+#ifdef KLM_NATIVE_ANIMATION
 /** Set the animation scroll speed of the segment in pixels per frame */
 void klm_seg_set_text_speed(klm_segment *seg, float speed) {
     seg->text_speed = speed;
     seg->_dirty = true;
 }
+
+/** Start animation of the given segment */
+void klm_seg_start(klm_segment * const seg) {
+    seg->paused = false;
+    seg->_dirty = true;
+}
+
+/** Stop animation of the given segment */
+void klm_seg_stop(klm_segment * const seg) {
+    seg->paused = true;
+    seg->_dirty = false;
+}
+#endif
 
 /** Set the position of the segment's text */
 void klm_seg_set_text_position(klm_segment * const seg, float text_pos) {

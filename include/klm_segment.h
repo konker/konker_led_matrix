@@ -52,7 +52,9 @@ typedef struct klm_segment
 
     uint32_t codepoints[KLM_TEXT_LEN];
     size_t   text_len;
+#ifdef KLM_NATIVE_ANIMATION
     float    text_speed;
+#endif
     float    text_pos;
 
     uint16_t _row_width;
@@ -94,8 +96,10 @@ void klm_seg_stop(klm_segment * const seg);
 /** Set the segment's text content */
 uint16_t klm_seg_set_text(klm_segment * const seg, const char *text);
 
+#ifdef KLM_NATIVE_ANIMATION
 /** Set the animation scroll speed of the segment in pixels per frame */
 void klm_seg_set_text_speed(klm_segment * const seg, float speed);
+#endif
 
 /** Set the position of the segment's text */
 void klm_seg_set_text_position(klm_segment * const seg, float text_pos);
