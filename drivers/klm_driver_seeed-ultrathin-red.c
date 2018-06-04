@@ -64,31 +64,31 @@ bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y) {
 void klm_mat_clear(klm_matrix *matrix) {
     int16_t i;
 #ifndef KLM_NO_DOUBLE_BUFFER
-    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
+    for (i=0; i<(matrix->config->height*matrix->_row_width); i++) {
         matrix->display_buffer1[i] = KLM_OFF_BYTE;
     }
 #endif
-    for (i=0; i<(matrix->height*matrix->_row_width); i++) {
+    for (i=0; i<(matrix->config->height*matrix->_row_width); i++) {
         matrix->display_buffer0[i] = KLM_OFF_BYTE;
     }
 }
 
 void klm_mat_dump_buffer(klm_matrix * const matrix) {
     int16_t i;
-    for (i=0; i<matrix->height*matrix->_row_width; i++) {
+    for (i=0; i<matrix->config->height*matrix->_row_width; i++) {
         KLM_LOG(matrix, "%02x ", matrix->display_buffer0[i]);
     }
     KLM_LOG(matrix, "\n");
 #ifndef KLM_NO_DOUBLE_BUFFER
-    for (i=0; i<matrix->height*matrix->_row_width; i++) {
+    for (i=0; i<matrix->config->height*matrix->_row_width; i++) {
         KLM_LOG(matrix, "%02x ", matrix->display_buffer1[i]);
     }
     KLM_LOG(matrix, "\n");
 #endif
 
     int16_t x, y;
-    for (y=0; y<matrix->height; y++) {
-        for (x=0; x<matrix->width; x++) {
+    for (y=0; y<matrix->config->height; y++) {
+        for (x=0; x<matrix->config->width; x++) {
             if (klm_mat_is_pixel_set(matrix, x, y)) {
                 KLM_LOG(matrix, ". ");
             }
@@ -119,36 +119,64 @@ void klm_mat_scan(klm_matrix * const matrix) {
 #endif
 
         // Write each pixel in the byte, in reverse order
-        shiftOut(matrix->r1, matrix->clk, MSBFIRST, pixel8);
+        shiftOut(klm_config_get_pin(matrix->config, 'r'),
+                 klm_config_get_pin(matrix->config, 'x'),
+                 MSBFIRST,
+                 pixel8);
     }
 
     // Disable display
-    digitalWrite(matrix->oe, HIGH);
+    digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
 
     // Display the rows in reverse order
-    uint16_t display_row = (matrix->height - 1 - matrix->_scan_row);
+    uint16_t display_row = (matrix->config->height - 1 - matrix->_scan_row);
 
     // Select row
-    digitalWrite(matrix->a, (display_row & 0x01));
-    digitalWrite(matrix->b, (display_row & 0x02));
-    digitalWrite(matrix->c, (display_row & 0x04));
-    digitalWrite(matrix->d, (display_row & 0x08));
+    digitalWrite(klm_config_get_pin(matrix->config, 'a'), (display_row & 0x01));
+    digitalWrite(klm_config_get_pin(matrix->config, 'b'), (display_row & 0x02));
+    digitalWrite(klm_config_get_pin(matrix->config, 'c'), (display_row & 0x04));
+    digitalWrite(klm_config_get_pin(matrix->config, 'd'), (display_row & 0x08));
 
     // Latch data
-    digitalWrite(matrix->stb, LOW);
-    digitalWrite(matrix->stb, HIGH);
-    digitalWrite(matrix->stb, LOW);
+    digitalWrite(klm_config_get_pin(matrix->config, 's'), LOW);
+    digitalWrite(klm_config_get_pin(matrix->config, 's'), HIGH);
+    digitalWrite(klm_config_get_pin(matrix->config, 's'), LOW);
 
     // Enable display
-    digitalWrite(matrix->oe, LOW);
+    digitalWrite(klm_config_get_pin(matrix->config, 'o'), LOW);
 
     // Next row, wrap around at the bottom
-    matrix->_scan_row = (matrix->_scan_row + 1) % matrix->height;
+    matrix->_scan_row = (matrix->_scan_row + 1) % matrix->config->height;
 
     // Tick the matrix animation loop
     if (matrix->_scan_row == 0) {
         klm_mat_tick(matrix);
     }
+#endif
+}
+
+void klm_mat_init_hardware(klm_matrix * const matrix) {
+#ifndef KLM_NON_GPIO_MACHINE
+    // Initilize pin modes
+    pinMode(klm_config_get_pin(matrix->config, 'a'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 'b'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 'c'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 'd'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 'o'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 'r'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 'x'), OUTPUT);
+    pinMode(klm_config_get_pin(matrix->config, 's'), OUTPUT);
+#endif
+}
+
+void klm_mat_init_display_buffer(klm_matrix * const matrix) {
+    matrix->display_buffer0 =
+        calloc(KLM_BUFFER_LEN(matrix->config->height, matrix->config->width),
+               sizeof(*matrix->display_buffer0));
+#ifndef KLM_NO_DOUBLE_BUFFER
+    matrix->display_buffer1 =
+        calloc(KLM_BUFFER_LEN(matrix->config->height, matrix->config->width),
+               sizeof(*matrix->display_buffer1));
 #endif
 }
 

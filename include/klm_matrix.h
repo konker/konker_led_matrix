@@ -55,6 +55,7 @@ extern "C" {
 #include <hexfont_list.h>
 #include "klm_segment.h"
 #include "klm_segment_list.h"
+#include "klm_config.h"
 
 // Symbolic constants
 #define KLM_BYTE_WIDTH 8
@@ -81,10 +82,6 @@ extern "C" {
 // 1 thousand => 1 millisecond
 #define KLM_TICK_PERIOD_MICROS 100 * KLM_ONE_THOUSAND
 
-// Forward declare driver methods
-    /*
-*/
-
 // Forward declare klm_segment because of circular refs
 typedef struct klm_segment klm_segment;
 
@@ -93,18 +90,16 @@ typedef struct klm_matrix
     // Log file pointer
     FILE *logfp;
 
-    // GPIO control pins
-    uint8_t a, b, c, d, oe, r1, stb, clk;
-
-    // Physical dimensions of the display
-    int16_t width;
-    int16_t height;
+    klm_config *config;
 
     // A buffer to hold the current frame
     uint8_t *display_buffer0;
 
     // A buffer to hold the current frame for display
     uint8_t *display_buffer1;
+
+    // Whether the display buffer(s) were dynamically allocated
+    bool _dynamic_buffer;
 
     // A list of available fonts and associated font-metrics
     hexfont_list *font_list;
@@ -130,26 +125,25 @@ typedef struct klm_matrix
 bool klm_mat_begin();
 
 /** Create a matrix object by specifying its physical characteristics */
-klm_matrix * const klm_mat_create(
-                            FILE *logfp,
-                            uint8_t *display_buffer0,
-                            uint8_t *display_buffer1,
-                            uint8_t width,
-                            uint8_t height,
-                            uint8_t a, uint8_t b, uint8_t c, uint8_t d,
-                            uint8_t oe, uint8_t r1, uint8_t stb, uint8_t clk);
+klm_matrix * const klm_mat_create_static(FILE *logfp,
+                                         klm_config * const config,
+                                         uint8_t *display_buffer0,
+                                         uint8_t *display_buffer1);
+
+/** Create a matrix object by specifying its physical characteristics */
+klm_matrix * const klm_mat_create(FILE *logfp, klm_config * const config);
 
 /** Clean up a matrix object */
 void klm_mat_destroy(klm_matrix * const matrix);
 
 /** Initialize a matrix object with a set of fonts and a set of segments */
-void klm_mat_init(
-            klm_matrix * const matrix,
-            hexfont_list * const font_list,
-            klm_segment_list * const segment_list);
+void klm_mat_init(klm_matrix * const matrix,
+                  hexfont_list * const font_list,
+                  klm_segment_list * const segment_list);
 
 /** Initialize a matrix object with the given font. A full-screen segment will be automatically created */
-void klm_mat_simple_init(klm_matrix * const matrix, hexfont * const font);
+void klm_mat_simple_init(klm_matrix * const matrix,
+                         hexfont * const font);
 
 /** Set the default full-screen segment's text content */
 uint16_t klm_mat_simple_set_text(klm_matrix * const matrix, const char *text);
@@ -204,6 +198,8 @@ extern bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y
 /** Print a representation of the display buffer to the console */
 extern void klm_mat_dump_buffer(klm_matrix * const matrix);
 
+extern void klm_mat_init_hardware(klm_matrix * const matrix);
+extern void klm_mat_init_display_buffer(klm_matrix * const matrix);
 
 // Inline funtions
 // ----------------------------------------------------------------------------

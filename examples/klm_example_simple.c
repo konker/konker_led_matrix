@@ -35,16 +35,16 @@
 #define EXAMPLE_A 0
 #define EXAMPLE_B 2
 #define EXAMPLE_C 3
-#define EXAMPLE_D 12
-#define EXAMPLE_OE 13
-#define EXAMPLE_R1 14
-#define EXAMPLE_STB 21
-#define EXAMPLE_CLK 22
+#define EXAMPLE_D 1
+#define EXAMPLE_R1 4
+#define EXAMPLE_OE 21
+#define EXAMPLE_STB 22
+#define EXAMPLE_CLK 23
 
 #ifdef KLM_NON_GPIO_MACHINE
 #   define EXAMPLE_TEXT_SPEED1 2.20
 #else
-#   define EXAMPLE_TEXT_SPEED1 0.002
+#   define EXAMPLE_TEXT_SPEED1 2.402
 #endif
 
 
@@ -61,22 +61,23 @@ int main() {
     uint8_t example_display_buffer1[
         KLM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
 
+    klm_config *example_config =
+            klm_config_create(EXAMPLE_MATRIX_WIDTH, EXAMPLE_MATRIX_HEIGHT);
+    klm_config_set_pin(example_config, 'a', EXAMPLE_A);
+    klm_config_set_pin(example_config, 'b', EXAMPLE_B);
+    klm_config_set_pin(example_config, 'c', EXAMPLE_C);
+    klm_config_set_pin(example_config, 'd', EXAMPLE_D);
+    klm_config_set_pin(example_config, 'o', EXAMPLE_OE);
+    klm_config_set_pin(example_config, 'r', EXAMPLE_R1);
+    klm_config_set_pin(example_config, 's', EXAMPLE_STB);
+    klm_config_set_pin(example_config, 'x', EXAMPLE_CLK);
+
     // Create a matrix
     klm_matrix *example_matrix =
-                    klm_mat_create(
-                            stdout,
-                            example_display_buffer0,
-                            example_display_buffer1,
-                            EXAMPLE_MATRIX_WIDTH,
-                            EXAMPLE_MATRIX_HEIGHT,
-                            EXAMPLE_A,
-                            EXAMPLE_B,
-                            EXAMPLE_C,
-                            EXAMPLE_D,
-                            EXAMPLE_OE,
-                            EXAMPLE_R1,
-                            EXAMPLE_STB,
-                            EXAMPLE_CLK);
+                    klm_mat_create_static(stdout,
+                                          example_config,
+                                          example_display_buffer0,
+                                          example_display_buffer1);
 
     // Initialize some font(s)
     hexfont * const example_font = hexfont_load_data(hexfont_iso_8859_15, 16);
@@ -92,11 +93,6 @@ int main() {
     for (j=0; j<50000; j++) {
         // Call the display driver for one row
         klm_mat_scan(example_matrix);
-
-        // Reverse the display every 2000 scans
-        if ((j % 2000) == 0) {
-            klm_mat_simple_reverse(example_matrix);
-        }
 
 #ifdef KLM_NON_GPIO_MACHINE
         if (example_matrix->_scan_row == 0) {

@@ -56,6 +56,23 @@ bool klm_mat_begin() {
     return true;
 }
 
+klm_matrix * const klm_mat_create(FILE *logfp, klm_config * const config) {
+    // Allocate memory for a klm_matrix structure and initialize all members
+    klm_matrix * const matrix = malloc(sizeof(klm_matrix));
+
+    matrix->config = config;
+    matrix->logfp = logfp;
+    matrix->_row_width = (matrix->config->width / KLM_BYTE_WIDTH);
+
+    klm_mat_init_display_buffer(matrix);
+    matrix->_dynamic_buffer = true;
+
+    matrix->on = true;
+    matrix->_scan_row = 0;
+
+    return matrix;
+}
+
 /**
  * Create a new matrix
  *
@@ -66,36 +83,25 @@ bool klm_mat_begin() {
  *
  * @return  A pointer to a newly initialized matrix stucture
  */
-klm_matrix * const klm_mat_create(
-                            FILE *logfp,
-                            uint8_t *display_buffer0,
-                            uint8_t *display_buffer1,
-                            uint8_t width,
-                            uint8_t height,
-                            uint8_t a, uint8_t b, uint8_t c, uint8_t d,
-                            uint8_t oe, uint8_t r1, uint8_t stb, uint8_t clk)
+klm_matrix * const klm_mat_create_static(FILE *logfp,
+                                         klm_config * const config,
+                                         uint8_t *display_buffer0,
+                                         uint8_t *display_buffer1)
 {
     // Allocate memory for a klm_matrix structure and initialize all members
     klm_matrix * const matrix = malloc(sizeof(klm_matrix));
 
+    matrix->config = config;
     matrix->logfp = logfp;
-    matrix->width = width;
-    matrix->height = height;
+    matrix->_row_width = (matrix->config->width / KLM_BYTE_WIDTH);
     matrix->display_buffer0 = display_buffer0;
     matrix->display_buffer1 = display_buffer1;
-    matrix->_row_width = (width / KLM_BYTE_WIDTH);
-
-    matrix->a = a;
-    matrix->b = b;
-    matrix->c = c;
-    matrix->d = d;
-    matrix->oe = oe;
-    matrix->r1 = r1;
-    matrix->stb = stb;
-    matrix->clk = clk;
 
     matrix->on = true;
     matrix->_scan_row = 0;
+    matrix->_dynamic_buffer = false;
+    matrix->micros_0 = 0;
+    matrix->micros_1 = 0;
 
     return matrix;
 }
@@ -108,29 +114,27 @@ void klm_mat_destroy(klm_matrix * const matrix) {
     // Clean up the font list
     klm_segment_list_destroy(matrix->segment_list);
 
+    // If display buffer(s) are dynamically allocated, free them
+    if (matrix->_dynamic_buffer) {
+        free(matrix->display_buffer0);
+#ifndef KLM_NO_DOUBLE_BUFFER
+        free(matrix->display_buffer1);
+#endif
+    }
+
     // Free dynamically allocated memory for the matrix itself
     free(matrix);
 }
 
 /** Initialize a matrix object with a set of fonts and a set of segments */
 void klm_mat_init(klm_matrix * const matrix,
-                   hexfont_list *font_list,
-                   klm_segment_list *segment_list)
+                  hexfont_list *font_list,
+                  klm_segment_list *segment_list)
 {
     matrix->font_list = font_list;
     matrix->segment_list = segment_list;
 
-#ifndef KLM_NON_GPIO_MACHINE
-    // Initilize pin modes
-    pinMode(matrix->a, OUTPUT);
-    pinMode(matrix->b, OUTPUT);
-    pinMode(matrix->c, OUTPUT);
-    pinMode(matrix->d, OUTPUT);
-    pinMode(matrix->oe, OUTPUT);
-    pinMode(matrix->r1, OUTPUT);
-    pinMode(matrix->clk, OUTPUT);
-    pinMode(matrix->stb, OUTPUT);
-#endif
+    klm_mat_init_hardware(matrix);
 
     klm_mat_clear(matrix);
 
@@ -139,7 +143,9 @@ void klm_mat_init(klm_matrix * const matrix,
 
 /** Initialize a matrix object with the given font.
     A full-screen segment will be automatically created */
-void klm_mat_simple_init(klm_matrix * const matrix, hexfont * const font) {
+void klm_mat_simple_init(klm_matrix * const matrix,
+                         hexfont * const font)
+{
     // Create a font list containing the given font
     hexfont_list * const _default_font_list = hexfont_list_create(font);
 
@@ -147,8 +153,8 @@ void klm_mat_simple_init(klm_matrix * const matrix, hexfont * const font) {
     klm_segment * const _default_segment =
                                 klm_seg_create(matrix,
                                                 0, 0,
-                                                matrix->width,
-                                                matrix->height,
+                                                matrix->config->width,
+                                                matrix->config->height,
                                                 0);
 
     // Create a segment list with one item
@@ -157,8 +163,8 @@ void klm_mat_simple_init(klm_matrix * const matrix, hexfont * const font) {
 
     // Initialize the matrix with the default font list and segment list
     klm_mat_init(matrix,
-                  _default_font_list,
-                  _default_segment_list);
+                 _default_font_list,
+                 _default_segment_list);
 }
 
 /** Set the default full-screen segment's text content */
@@ -222,7 +228,7 @@ void klm_mat_on(klm_matrix *matrix) {
 void klm_mat_off(klm_matrix *matrix) {
     matrix->on = false;
 #ifndef KLM_NON_GPIO_MACHINE
-    digitalWrite(matrix->oe, HIGH);
+    digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
 #endif
 }
 
