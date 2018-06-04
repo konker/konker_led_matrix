@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 project("Konker LED Matrix Library")
 set(CMAKE_BUILD_TYPE Debug)
 
-set(DEFAULT_HEXFONT_DIR "${CMAKE_SOURCE_DIR}/../hexfont")
+set(DEFAULT_TINYHEXFONT_DIR "${CMAKE_SOURCE_DIR}/../tinyhexfont")
 set(DEFAULT_TINYUTF8_DIR "${CMAKE_SOURCE_DIR}/../tinyutf8")
 
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
 option(KLM_WIRING_PI "Build target is a Raspberry Pi using the WiringPi library" OFF)
 option(KLM_NO_DOUBLE_BUFFER "Disable double buffering" OFF)
 
-option(HEXFONT_DIR "Location of the hexfont library" OFF)
+option(TINYHEXFONT_DIR "Location of the hexfont library" OFF)
 option(TINYUTF8_DIR "Location of the tinyutf8 library" OFF)
 
 if(NOT KLM_DRIVER)
@@ -18,9 +18,9 @@ else()
     message("Using KLM_DRIVER: ${KLM_DRIVER}")
 endif()
 
-if(NOT HEXFONT_DIR)
-    message(WARNING "No HEXFONT_DIR specified. Using default: ${DEFAULT_HEXFONT_DIR}")
-    set(HEXFONT_DIR ${DEFAULT_HEXFONT_DIR})
+if(NOT TINYHEXFONT_DIR)
+    message(WARNING "No TINYHEXFONT_DIR specified. Using default: ${DEFAULT_TINYHEXFONT_DIR}")
+    set(TINYHEXFONT_DIR ${DEFAULT_TINYHEXFONT_DIR})
 endif()
 
 if(NOT TINYUTF8_DIR)
@@ -30,10 +30,10 @@ endif()
 
 include_directories(include)
 
-include_directories(${HEXFONT_DIR}/include)
+include_directories(${TINYHEXFONT_DIR}/include)
 include_directories(${TINYUTF8_DIR}/include)
 
-link_directories(${HEXFONT_DIR}/build)
+link_directories(${TINYHEXFONT_DIR}/build)
 link_directories(${TINYUTF8_DIR}/build)
 
 if(KLM_WIRING_PI)
