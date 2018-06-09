@@ -52,16 +52,6 @@ bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KLM_BUF_OFFSET(matrix, x, y);
     //[TODO: drivers should not care about double buffering]
 #ifndef KLM_NO_DOUBLE_BUFFER
-    if (p == 69) {
-        KLM_LOG(matrix, "KONK0: %d \n", bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH));
-        if (bitRead(matrix->display_buffer1[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
-            KLM_LOG(matrix, "KONK1: %s \n", "YES");
-        }
-        else {
-            KLM_LOG(matrix, "KONK1: %s \n", "NO");
-        }
-    }
-
     if (bitRead(matrix->display_buffer1[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
         return true;
     }
@@ -106,10 +96,10 @@ void klm_mat_dump_buffer(klm_matrix * const matrix) {
     for (y=0; y<matrix->config->height; y++) {
         for (x=0; x<matrix->config->width; x++) {
             if (klm_mat_is_pixel_set(matrix, x, y)) {
-                KLM_LOG(matrix, "# ");
+                KLM_LOG(matrix, ", ");
             }
             else {
-                KLM_LOG(matrix, ". ");
+                KLM_LOG(matrix, "# ");
             }
         }
         KLM_LOG(matrix, "\n");
