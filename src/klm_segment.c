@@ -73,6 +73,7 @@ klm_segment * const klm_seg_create(
 
     segment->_row_width = (width / KLM_BYTE_WIDTH);
     segment->_text_pixel_len = 0;
+    segment->_dirty = false;
 
     return segment;
 }
