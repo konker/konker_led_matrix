@@ -42,8 +42,8 @@ typedef struct klm_segment
 
     int16_t x;
     int16_t y;
-    int16_t width;
-    int16_t height;
+    uint16_t width;
+    uint16_t height;
 
     uint8_t  font_index;
     bool     visible;
@@ -68,8 +68,8 @@ klm_segment * const klm_seg_create(
                                 klm_matrix * const matrix,
                                 uint8_t x,
                                 uint8_t y,
-                                uint8_t width,
-                                uint8_t height,
+                                uint16_t width,
+                                uint16_t height,
                                 uint8_t font_index);
 
 /** Clean up a virtual segment object */

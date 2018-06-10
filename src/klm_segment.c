@@ -32,7 +32,6 @@
 
 // Symbolic constants
 #define KLM_BYTE_WIDTH 8
-#define KLM_CHARACTER_HEIGHT 6
 #define KLM_CHARACTER_SPACING 1
 
 
@@ -42,8 +41,8 @@ klm_segment * const klm_seg_create(
                                 klm_matrix * const matrix,
                                 uint8_t x,
                                 uint8_t y,
-                                uint8_t width,
-                                uint8_t height,
+                                uint16_t width,
+                                uint16_t height,
                                 uint8_t font_index)
 {
     // Allocate memory for a klm_matrix structure and initialize all members
@@ -58,7 +57,7 @@ klm_segment * const klm_seg_create(
     segment->font_index = font_index;
     segment->visible = true;
     segment->paused = false;
-    segment->mask = true;
+    segment->mask = false;
 
     segment->text_len = 0;
 #ifdef KLM_NATIVE_ANIMATION
@@ -71,7 +70,7 @@ klm_segment * const klm_seg_create(
         segment->codepoints[i] = 0x0;
     }
 
-    segment->_row_width = (width / KLM_BYTE_WIDTH);
+    segment->_row_width = (uint16_t)(width / KLM_BYTE_WIDTH);
     segment->_text_pixel_len = 0;
     segment->_dirty = false;
 

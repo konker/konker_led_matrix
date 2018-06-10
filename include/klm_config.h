@@ -38,8 +38,8 @@ typedef struct {
     klm_pin_list * pin_list;
 
     // Physical dimensions of the display
-    int16_t width;
-    int16_t height;
+    uint16_t width;
+    uint16_t height;
 
 } klm_config;
 

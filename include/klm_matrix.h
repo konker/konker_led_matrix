@@ -64,9 +64,9 @@ extern "C" {
 #define KLM_ON 0x01
 
 // Macros for convenience
-#define KLM_BUFFER_LEN(w, h) (h * (w/KLM_BYTE_WIDTH))
+#define KLM_BUFFER_LEN(w, h) (size_t)(h * (w/KLM_BYTE_WIDTH))
 #define KLM_ROW_OFFSET(matrix, y) (matrix->_row_width*y)
-#define KLM_BUF_OFFSET(matrix, x, y) (KLM_ROW_OFFSET(matrix, y)+x/KLM_BYTE_WIDTH)
+#define KLM_BUF_OFFSET(matrix, x, y) (size_t)(KLM_ROW_OFFSET(matrix, y)+x/KLM_BYTE_WIDTH)
 #define KLM_LOG(matrix, ...) fprintf(matrix->logfp, __VA_ARGS__); \
                              fflush(matrix->logfp);
 #define KLM_LOCK(lock) if (lock != NULL) { *lock = true; }

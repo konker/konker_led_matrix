@@ -62,7 +62,7 @@ klm_matrix * const klm_mat_create(FILE *logfp, klm_config * const config) {
 
     matrix->config = config;
     matrix->logfp = logfp;
-    matrix->_row_width = (matrix->config->width / KLM_BYTE_WIDTH);
+    matrix->_row_width = (uint16_t)(matrix->config->width / KLM_BYTE_WIDTH);
 
     klm_mat_init_display_buffer(matrix);
     matrix->_dynamic_buffer = true;
@@ -93,7 +93,7 @@ klm_matrix * const klm_mat_create_static(FILE *logfp,
 
     matrix->config = config;
     matrix->logfp = logfp;
-    matrix->_row_width = (matrix->config->width / KLM_BYTE_WIDTH);
+    matrix->_row_width = (uint16_t)(matrix->config->width / KLM_BYTE_WIDTH);
     matrix->display_buffer0 = display_buffer0;
     matrix->display_buffer1 = display_buffer1;
 
@@ -199,7 +199,7 @@ void klm_mat_simple_reverse(klm_matrix * const matrix) {
 
 /** Drive animation */
 void klm_mat_tick(klm_matrix *matrix) {
-    KLM_NOW_MICROSECS(matrix->micros_1, matrix->now_t)
+    KLM_NOW_MICROSECS(matrix->micros_1, matrix->now_t);
 
     // Delay to make loop time consistent
     int64_t period = KLM_TICK_PERIOD_MICROS
@@ -230,6 +230,38 @@ void klm_mat_off(klm_matrix *matrix) {
 #ifndef KLM_NON_GPIO_MACHINE
     digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
 #endif
+}
+
+/** Clear the entire matrix */
+void klm_mat_clear(klm_matrix *matrix) {
+    int16_t x, y;
+    for (y=0; y<matrix->config->height; y++) {
+        for (x = 0; x < matrix->config->width; x++) {
+            klm_mat_clear_pixel(matrix, x, y);
+        }
+    }
+}
+
+void klm_mat_dump_buffer(klm_matrix * const matrix) {
+    int16_t i;
+    for (i=0; i<matrix->config->height*matrix->_row_width; i++) {
+        KLM_LOG(matrix, "%02x ", matrix->display_buffer1[i]);
+    }
+    KLM_LOG(matrix, "\n");
+
+    int16_t x, y;
+    for (y=0; y<matrix->config->height; y++) {
+        for (x=0; x<matrix->config->width; x++) {
+            if (klm_mat_is_pixel_set(matrix, x, y)) {
+                KLM_LOG(matrix, "# ");
+            }
+            else {
+                KLM_LOG(matrix, ". ");
+            }
+        }
+        KLM_LOG(matrix, "\n");
+    }
+    KLM_LOG(matrix, "\n");
 }
 
 static void _klm_mat_sanity_check(klm_matrix * const matrix) {

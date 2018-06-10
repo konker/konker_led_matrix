@@ -48,60 +48,10 @@ void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool ma
 /** Query whether or not the given pixel has been set */
 bool klm_mat_is_pixel_set(klm_matrix * const matrix, int16_t x, int16_t y) {
     size_t p = KLM_BUF_OFFSET(matrix, x, y);
-    //[TODO: drivers should not care about double buffering]
-#ifndef KLM_NO_DOUBLE_BUFFER
     if (bitRead(matrix->display_buffer1[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
         return true;
     }
-#else
-    if (bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) == KLM_ON) {
-        return true;
-    }
-#endif
     return false;
-}
-
-/** Clear the entire matrix */
-void klm_mat_clear(klm_matrix *matrix) {
-    int16_t i;
-    //[TODO: drivers should not care about double buffering]
-#ifndef KLM_NO_DOUBLE_BUFFER
-    for (i=0; i<(matrix->config->height*matrix->_row_width); i++) {
-        matrix->display_buffer1[i] = KLM_OFF_BYTE;
-    }
-#endif
-    for (i=0; i<(matrix->config->height*matrix->_row_width); i++) {
-        matrix->display_buffer0[i] = KLM_OFF_BYTE;
-    }
-}
-
-void klm_mat_dump_buffer(klm_matrix * const matrix) {
-    int16_t i;
-    for (i=0; i<matrix->config->height*matrix->_row_width; i++) {
-        KLM_LOG(matrix, "%02x ", matrix->display_buffer0[i]);
-    }
-    KLM_LOG(matrix, "\n");
-    //[TODO: drivers should not care about double buffering]
-#ifndef KLM_NO_DOUBLE_BUFFER
-    for (i=0; i<matrix->config->height*matrix->_row_width; i++) {
-        KLM_LOG(matrix, "%02x ", matrix->display_buffer1[i]);
-    }
-    KLM_LOG(matrix, "\n");
-#endif
-
-    int16_t x, y;
-    for (y=0; y<matrix->config->height; y++) {
-        for (x=0; x<matrix->config->width; x++) {
-            if (klm_mat_is_pixel_set(matrix, x, y)) {
-                KLM_LOG(matrix, "# ");
-            }
-            else {
-                KLM_LOG(matrix, ". ");
-            }
-        }
-        KLM_LOG(matrix, "\n");
-    }
-    KLM_LOG(matrix, "\n");
 }
 
 /** Drive the matrix display */
@@ -115,12 +65,7 @@ void klm_mat_scan(klm_matrix * const matrix) {
     // Process the row in reverse order
     int16_t x8;
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
-    //[TODO: drivers should not care about double buffering]
-#ifndef KLM_NO_DOUBLE_BUFFER
         uint8_t pixel8 = matrix->display_buffer1[offset + x8];
-#else
-        uint8_t pixel8 = matrix->display_buffer0[offset + x8];
-#endif
 
         // Write each pixel in the byte, in reverse order
         shiftOut(klm_config_get_pin(matrix->config, 'r'),
@@ -177,11 +122,11 @@ void klm_mat_init_display_buffer(klm_matrix * const matrix) {
     matrix->display_buffer0 =
         calloc(KLM_BUFFER_LEN(matrix->config->height, matrix->config->width),
                sizeof(*matrix->display_buffer0));
-    //[TODO: drivers should not care about double buffering]
-#ifndef KLM_NO_DOUBLE_BUFFER
+
     matrix->display_buffer1 =
         calloc(KLM_BUFFER_LEN(matrix->config->height, matrix->config->width),
                sizeof(*matrix->display_buffer1));
-#endif
+
+    klm_mat_clear(matrix);
 }
 
