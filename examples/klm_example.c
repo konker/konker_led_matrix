@@ -58,11 +58,6 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    uint8_t example_display_buffer0[
-        KLM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
-    uint8_t example_display_buffer1[
-        KLM_BUFFER_LEN(EXAMPLE_MATRIX_HEIGHT, EXAMPLE_MATRIX_WIDTH)];
-
     klm_config *example_config =
             klm_config_create(EXAMPLE_MATRIX_WIDTH, EXAMPLE_MATRIX_HEIGHT);
     klm_config_set_pin(example_config, 'a', EXAMPLE_A);
@@ -75,11 +70,7 @@ int main() {
     klm_config_set_pin(example_config, 'x', EXAMPLE_CLK);
 
     // Create a matrix
-    klm_matrix *example_matrix =
-                    klm_mat_create_static(stdout,
-                                          example_config,
-                                          example_display_buffer0,
-                                          example_display_buffer1);
+    klm_matrix *example_matrix = klm_mat_create(stdout, example_config);
 
     // Initialize some font(s)
     hexfont * const example_font = hexfont_load_data(hexfont_iso_8859_15, 16);

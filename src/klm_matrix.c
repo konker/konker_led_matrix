@@ -69,37 +69,6 @@ klm_matrix * const klm_mat_create(FILE *logfp, klm_config * const config) {
 
     matrix->on = true;
     matrix->_scan_row = 0;
-
-    return matrix;
-}
-
-/**
- * Create a new matrix
- *
- * @param display_buffer  A uint8_t array of length width * height to hold
- *                        the contents of the matrix display
- * @param width  The total width of the matrix, or matrices, in "pixels"
- * @param height  The total height of the matrix, or matrices, in "pixels"
- *
- * @return  A pointer to a newly initialized matrix stucture
- */
-klm_matrix * const klm_mat_create_static(FILE *logfp,
-                                         klm_config * const config,
-                                         uint8_t *display_buffer0,
-                                         uint8_t *display_buffer1)
-{
-    // Allocate memory for a klm_matrix structure and initialize all members
-    klm_matrix * const matrix = malloc(sizeof(klm_matrix));
-
-    matrix->config = config;
-    matrix->logfp = logfp;
-    matrix->_row_width = (uint16_t)(matrix->config->width / KLM_BYTE_WIDTH);
-    matrix->display_buffer0 = display_buffer0;
-    matrix->display_buffer1 = display_buffer1;
-
-    matrix->on = true;
-    matrix->_scan_row = 0;
-    matrix->_dynamic_buffer = false;
     matrix->micros_0 = 0;
     matrix->micros_1 = 0;
 
