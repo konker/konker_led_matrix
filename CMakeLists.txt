@@ -4,17 +4,18 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(DEFAULT_TINYHEXFONT_DIR "${CMAKE_SOURCE_DIR}/../tinyhexfont")
 set(DEFAULT_TINYUTF8_DIR "${CMAKE_SOURCE_DIR}/../tinyutf8")
+set(DEFAULT_KLM_DRIVER "klm_driver_dummy")
 
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
 option(KLM_WIRING_PI "Build target is a Raspberry Pi using the WiringPi library" OFF)
-option(KLM_NO_DOUBLE_BUFFER "Disable double buffering" OFF)
 option(KLM_NATIVE_ANIMATION "Enable native animation loop" OFF)
 
 option(TINYHEXFONT_DIR "Location of the hexfont library" OFF)
 option(TINYUTF8_DIR "Location of the tinyutf8 library" OFF)
 
 if(NOT KLM_DRIVER)
-    message(FATAL_ERROR "No KLM_DRIVER specified. Aborting.")
+    message(WARNING "No KLM_DRIVER specified. Using default: ${DEFAULT_KLM_DRIVER}")
+    set(KLM_DRIVER ${DEFAULT_KLM_DRIVER})
 else()
     message("Using KLM_DRIVER: ${KLM_DRIVER}")
 endif()
@@ -39,10 +40,6 @@ link_directories(${TINYUTF8_DIR}/build)
 
 if(KLM_WIRING_PI)
     add_definitions(-DKLM_WIRING_PI)
-endif()
-
-if(KLM_NO_DOUBLE_BUFFER)
-    add_definitions(-DKLM_NO_DOUBLE_BUFFER)
 endif()
 
 if(KLM_NATIVE_ANIMATION)

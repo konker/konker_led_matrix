@@ -117,9 +117,7 @@ void klm_mat_destroy(klm_matrix * const matrix) {
     // If display buffer(s) are dynamically allocated, free them
     if (matrix->_dynamic_buffer) {
         free(matrix->display_buffer0);
-#ifndef KLM_NO_DOUBLE_BUFFER
         free(matrix->display_buffer1);
-#endif
     }
 
     // Free dynamically allocated memory for the matrix itself

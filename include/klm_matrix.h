@@ -207,11 +207,9 @@ extern void klm_mat_init_display_buffer(klm_matrix * const matrix);
 // ----------------------------------------------------------------------------
 /** Copy the buffer0 to buffer1 */
 static inline void klm_mat_swap_buffers(klm_matrix * const matrix) {
-#ifndef KLM_NO_DOUBLE_BUFFER
     uint8_t *tmp = matrix->display_buffer1;
     matrix->display_buffer1 = matrix->display_buffer0;
     matrix->display_buffer0 = tmp;
-#endif
 }
 
 /** Clear a region of the matrix */
