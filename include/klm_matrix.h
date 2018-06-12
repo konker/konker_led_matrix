@@ -107,6 +107,9 @@ typedef struct klm_matrix
     // Global matrix state flags
     bool on;
 
+    // A number to indicate the level of modulation used for "dimming"
+    uint16_t scan_modulation;
+
     // A list of virtual segments which make up the display
     klm_segment_list *segment_list;
 
@@ -170,6 +173,10 @@ void klm_mat_on(klm_matrix * const matrix);
 
 /** Switch on matrix display */
 void klm_mat_off(klm_matrix * const matrix);
+
+/** Set the scan loop modulation */
+void klm_mat_set_scan_modulation(klm_matrix * const matrix, uint16_t scan_modulation);
+
 
 // Driver functions
 // ----------------------------------------------------------------------------

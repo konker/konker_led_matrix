@@ -68,6 +68,8 @@ klm_matrix * const klm_mat_create(FILE *logfp, klm_config * const config) {
     matrix->_dynamic_buffer = true;
 
     matrix->on = true;
+    matrix->scan_modulation = 0;
+
     matrix->_scan_row = 0;
     matrix->micros_0 = 0;
     matrix->micros_1 = 0;
@@ -199,6 +201,11 @@ void klm_mat_off(klm_matrix *matrix) {
 #ifndef KLM_NON_GPIO_MACHINE
     digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
 #endif
+}
+
+/** Set the scan loop modulation */
+void klm_mat_set_scan_modulation(klm_matrix * const matrix, uint16_t scan_modulation) {
+    matrix->scan_modulation = scan_modulation;
 }
 
 /** Clear the entire matrix */

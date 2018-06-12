@@ -103,6 +103,12 @@ void klm_mat_scan(klm_matrix * const matrix) {
     // Tick the matrix animation loop
     if (matrix->_scan_row == 0) {
         klm_mat_tick(matrix);
+
+        // Toggle the display off/on a number of times to appear to "dim"
+        for (int i=0; i<matrix->scan_modulation; i++) {
+            digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
+            digitalWrite(klm_config_get_pin(matrix->config, 'o'), LOW);
+        }
     }
 #endif
 }
