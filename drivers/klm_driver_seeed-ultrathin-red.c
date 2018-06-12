@@ -39,10 +39,10 @@ void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y) {
 }
 
 /** Switch a matrix pixel off */
-void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask) {
+void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool reverse) {
     size_t p = KLM_BUF_OFFSET(matrix, x, y);
     bitWrite(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH,
-            bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) ^ mask);
+            bitRead(matrix->display_buffer0[p], x % KLM_BYTE_WIDTH) ^ reverse);
 }
 
 /** Query whether or not the given pixel has been set */
@@ -66,6 +66,9 @@ void klm_mat_scan(klm_matrix * const matrix) {
     int16_t x8;
     for (x8=matrix->_row_width-1; x8>=0; x8--) {
         uint8_t pixel8 = matrix->display_buffer1[offset + x8];
+
+        // Flip all bits
+        pixel8 ^= 0xFF;
 
         // Write each pixel in the byte, in reverse order
         shiftOut(klm_config_get_pin(matrix->config, 'r'),

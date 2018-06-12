@@ -32,7 +32,7 @@
 static void _klm_mat_sanity_check(klm_matrix * const matrix);
 
 static inline void klm_mat_clear_region(klm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h);
-static inline void klm_mat_mask_region(klm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h, bool mask);
+static inline void klm_mat_mask_region(klm_matrix * const matrix, int16_t x, int16_t y, uint16_t w, uint16_t h, bool reverse);
 static inline void klm_mat_render_sprite(
                     klm_matrix * const matrix,
                     hexfont_character * const sprite,

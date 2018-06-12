@@ -183,7 +183,7 @@ extern void klm_mat_set_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
 extern void klm_mat_clear_pixel(klm_matrix * const matrix, int16_t x, int16_t y);
 
 /** Apply a mask to a given pixel */
-extern void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool mask);
+extern void klm_mat_mask_pixel(klm_matrix * const matrix, int16_t x, int16_t y, bool reverse);
 
 /** Clear the matrix */
 extern void klm_mat_clear(klm_matrix *matrix);
@@ -228,7 +228,7 @@ static inline void klm_mat_mask_region(
                     klm_matrix * const matrix,
                     int16_t x, int16_t y,
                     uint16_t w, uint16_t h,
-                    bool mask)
+                    bool reverse)
 {
     int16_t bx, by;
     for (by=0; by<h; by++) {
@@ -236,7 +236,7 @@ static inline void klm_mat_mask_region(
             int16_t _x = x + bx;
             int16_t _y = y + by;
 
-            klm_mat_mask_pixel(matrix, _x, _y, mask);
+            klm_mat_mask_pixel(matrix, _x, _y, reverse);
         }
     }
 }

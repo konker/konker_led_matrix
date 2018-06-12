@@ -57,7 +57,7 @@ klm_segment * const klm_seg_create(
     segment->font_index = font_index;
     segment->visible = true;
     segment->paused = false;
-    segment->mask = false;
+    segment->reverse = false;
 
     segment->text_len = 0;
 #ifdef KLM_NATIVE_ANIMATION
@@ -92,11 +92,11 @@ void klm_seg_tick(klm_segment * const seg) {
     if (seg->paused) {
         if (seg->_dirty) {
             klm_seg_render_text(seg);
-            if (seg->mask) {
+            if (seg->reverse) {
                 klm_mat_mask_region(seg->matrix,
                                      seg->x, seg->y,
                                      seg->width, seg->height,
-                                     seg->mask);
+                                     seg->reverse);
             }
         }
         return;
@@ -113,21 +113,21 @@ void klm_seg_tick(klm_segment * const seg) {
         }
 
         klm_seg_render_text(seg);
-        if (seg->mask) {
+        if (seg->reverse) {
             klm_mat_mask_region(seg->matrix,
                                  seg->x, seg->y,
                                  seg->width, seg->height,
-                                 seg->mask);
+                                 seg->reverse);
         }
     }
 #else
     if (seg->_dirty) {
         klm_seg_render_text(seg);
-        if (seg->mask) {
+        if (seg->reverse) {
             klm_mat_mask_region(seg->matrix,
                                  seg->x, seg->y,
                                  seg->width, seg->height,
-                                 seg->mask);
+                                 seg->reverse);
         }
     }
 #endif
@@ -199,7 +199,7 @@ void klm_seg_set_text_position(klm_segment * const seg, float text_pos) {
 
 /** Reverse the segment */
 void klm_seg_reverse(klm_segment * const seg) {
-    seg->mask = !seg->mask;
+    seg->reverse = !seg->reverse;
 }
 
 /** Render the segment's text */

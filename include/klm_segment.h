@@ -48,7 +48,7 @@ typedef struct klm_segment
     uint8_t  font_index;
     bool     visible;
     bool     paused;
-    bool     mask;
+    bool     reverse;
 
     uint32_t codepoints[KLM_TEXT_LEN];
     size_t   text_len;
