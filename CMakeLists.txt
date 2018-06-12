@@ -8,7 +8,7 @@ set(DEFAULT_KLM_DRIVER "klm_driver_dummy")
 
 option(KLM_DRIVER "Which LED panel specific driver to use" OFF)
 option(KLM_WIRING_PI "Build target is a Raspberry Pi using the WiringPi library" OFF)
-option(KLM_NATIVE_ANIMATION "Enable native animation loop" OFF)
+option(KLM_NATIVE_ANIMATION "Enable native animation loop" ON)
 
 option(TINYHEXFONT_DIR "Location of the hexfont library" OFF)
 option(TINYUTF8_DIR "Location of the tinyutf8 library" OFF)
