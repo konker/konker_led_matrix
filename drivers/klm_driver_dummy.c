@@ -62,23 +62,11 @@ void klm_mat_scan(klm_matrix * const matrix) {
 
     klm_mat_dump_buffer(matrix);
     klm_mat_tick(matrix);
-#ifdef KLM_NON_GPIO_MACHINE
     sleep(1);
-#endif
 }
 
 void klm_mat_init_hardware(klm_matrix * const matrix) {
-#ifndef KLM_NON_GPIO_MACHINE
-    // Initilize pin modes
-    pinMode(klm_config_get_pin(matrix->config, 'a'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 'b'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 'c'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 'd'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 'o'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 'r'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 'x'), OUTPUT);
-    pinMode(klm_config_get_pin(matrix->config, 's'), OUTPUT);
-#endif
+    return;
 }
 
 void klm_mat_init_display_buffer(klm_matrix * const matrix) {
