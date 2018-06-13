@@ -129,7 +129,7 @@ int main() {
         klm_mat_scan(example_matrix);
 
 #ifdef KLM_NON_GPIO_MACHINE
-        if (example_matrix->_scan_row == 0) {
+        if (example_matrix->scan_row == 0) {
             klm_mat_dump_buffer(example_matrix);
             sleep(1);
         }

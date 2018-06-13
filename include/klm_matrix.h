@@ -113,10 +113,11 @@ typedef struct klm_matrix
     // A list of virtual segments which make up the display
     klm_segment_list *segment_list;
 
+    // Keep track of the current scan row
+    uint16_t scan_row;
+
     // Internal vars
     uint16_t _row_width;
-    uint16_t _scan_row;
-
     struct timespec now_t;
     int64_t micros_0;
     int64_t micros_1;

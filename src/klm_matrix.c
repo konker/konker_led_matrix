@@ -69,8 +69,8 @@ klm_matrix * const klm_mat_create(FILE *logfp, klm_config * const config) {
 
     matrix->on = true;
     matrix->scan_modulation = 0;
+    matrix->scan_row = 0;
 
-    matrix->_scan_row = 0;
     matrix->micros_0 = 0;
     matrix->micros_1 = 0;
 

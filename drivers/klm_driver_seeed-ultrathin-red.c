@@ -60,7 +60,7 @@ void klm_mat_scan(klm_matrix * const matrix) {
 
 #ifndef KLM_NON_GPIO_MACHINE
     // Process each 8-pixel byte in the row
-    uint8_t offset = KLM_ROW_OFFSET(matrix, matrix->_scan_row);
+    uint8_t offset = KLM_ROW_OFFSET(matrix, matrix->scan_row);
 
     // Process the row in reverse order
     int16_t x8;
@@ -81,7 +81,7 @@ void klm_mat_scan(klm_matrix * const matrix) {
     digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
 
     // Display the rows in reverse order
-    uint16_t display_row = (matrix->config->height - 1 - matrix->_scan_row);
+    uint16_t display_row = (matrix->config->height - 1 - matrix->scan_row);
 
     // Select row
     digitalWrite(klm_config_get_pin(matrix->config, 'a'), (display_row & 0x01));
@@ -98,10 +98,10 @@ void klm_mat_scan(klm_matrix * const matrix) {
     digitalWrite(klm_config_get_pin(matrix->config, 'o'), LOW);
 
     // Next row, wrap around at the bottom
-    matrix->_scan_row = (matrix->_scan_row + 1) % matrix->config->height;
+    matrix->scan_row = (matrix->scan_row + 1) % matrix->config->height;
 
     // Tick the matrix animation loop
-    if (matrix->_scan_row == 0) {
+    if (matrix->scan_row == 0) {
         klm_mat_tick(matrix);
 
         // Toggle the display off/on a number of times to appear to "dim"
