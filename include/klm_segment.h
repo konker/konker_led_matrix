@@ -94,6 +94,9 @@ void klm_seg_stop(klm_segment * const seg);
 /** Set the segment's text content */
 uint16_t klm_seg_set_text(klm_segment * const seg, const char *text);
 
+/** Clear the buffer of a particular segment */
+void klm_seg_clear_text(klm_segment * const seg);
+
 /** Set the animation scroll speed of the segment in pixels per frame */
 void klm_seg_set_text_speed(klm_segment * const seg, float speed);
 

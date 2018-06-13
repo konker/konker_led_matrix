@@ -216,6 +216,15 @@ void klm_mat_clear(klm_matrix *matrix) {
     }
 }
 
+/** Clear the text of the entire matrix */
+void klm_mat_clear_text(klm_matrix * const matrix) {
+    klm_segment_list *iter = matrix->segment_list;
+    while (iter) {
+        klm_seg_clear_text(iter->item);
+        iter = iter->next;
+    }
+}
+
 void klm_mat_dump_buffer(klm_matrix * const matrix) {
     int16_t i;
     for (i=0; i<matrix->config->height*matrix->_row_width; i++) {

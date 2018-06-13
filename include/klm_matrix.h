@@ -166,6 +166,9 @@ void klm_mat_tick(klm_matrix * const matrix);
 /** Clear the entire matrix */
 void klm_mat_clear(klm_matrix * const matrix);
 
+/** Clear the text of the entire matrix */
+void klm_mat_clear_text(klm_matrix * const matrix);
+
 /** Switch off matrix display altogether */
 void klm_mat_on(klm_matrix * const matrix);
 

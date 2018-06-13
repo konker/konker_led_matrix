@@ -86,6 +86,7 @@ void klm_seg_tick(klm_segment * const seg) {
         return;
     }
 
+    /*
     if (seg->paused) {
         if (seg->_dirty) {
             klm_seg_render_text(seg);
@@ -98,8 +99,9 @@ void klm_seg_tick(klm_segment * const seg) {
         }
         return;
     }
+    */
 
-    if (seg->_dirty || seg->text_speed != 0) {
+    if (seg->text_speed != 0 && !seg->paused) {
         // Animate and render text
         seg->text_pos += seg->text_speed;
         if (seg->text_pos < -seg->_text_pixel_len) {
@@ -108,15 +110,8 @@ void klm_seg_tick(klm_segment * const seg) {
         else if (seg->text_pos > seg->width) {
             seg->text_pos = -seg->_text_pixel_len;
         }
-
-        klm_seg_render_text(seg);
-        if (seg->reverse) {
-            klm_mat_mask_region(seg->matrix,
-                                 seg->x, seg->y,
-                                 seg->width, seg->height,
-                                 seg->reverse);
-        }
     }
+
     if (seg->_dirty) {
         klm_seg_render_text(seg);
         if (seg->reverse) {
@@ -166,6 +161,13 @@ uint16_t klm_seg_set_text(klm_segment *seg, const char * const text) {
     return seg->_text_pixel_len;
 }
 
+/** Clear the text of a particular segment */
+void klm_seg_clear_text(klm_segment * const seg) {
+    klm_seg_set_text(seg, "");
+    klm_seg_set_text_speed(seg, 0);
+    klm_seg_set_text_position(seg, 0);
+}
+
 /** Set the animation scroll speed of the segment in pixels per frame */
 void klm_seg_set_text_speed(klm_segment *seg, float speed) {
     seg->text_speed = speed;
@@ -181,7 +183,7 @@ void klm_seg_start(klm_segment * const seg) {
 /** Stop animation of the given segment */
 void klm_seg_stop(klm_segment * const seg) {
     seg->paused = true;
-    seg->_dirty = false;
+    seg->_dirty = true;
 }
 
 /** Set the position of the segment's text */
