@@ -114,15 +114,11 @@ int main() {
 
     // Set some text in segment 0
     klm_seg_set_text(example_segment0, "HELLO");
-#ifdef KLM_NATIVE_ANIMATION
     klm_seg_set_text_speed(example_segment0, -EXAMPLE_TEXT_SPEED1);
-#endif
 
     // Set some text in segment 1
     klm_seg_set_text(example_segment1, "WORLD!");
-#ifdef KLM_NATIVE_ANIMATION
     klm_seg_set_text_speed(example_segment1, EXAMPLE_TEXT_SPEED2);
-#endif
 
     klm_seg_reverse(example_segment1);
 

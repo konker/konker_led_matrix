@@ -141,7 +141,6 @@ uint16_t klm_mat_simple_set_text(klm_matrix * const matrix, const char *text) {
     return klm_seg_set_text(matrix->segment_list->item, text);
 }
 
-#ifdef KLM_NATIVE_ANIMATION
 /** Set the animation scroll speed of the default full-screen segment in pixels per frame */
 void klm_mat_simple_set_text_speed(klm_matrix * const matrix, float speed) {
     klm_seg_set_text_speed(matrix->segment_list->item, speed);
@@ -156,7 +155,6 @@ void klm_mat_simple_start(klm_matrix *matrix) {
 void klm_mat_simple_stop(klm_matrix *matrix) {
     klm_seg_stop(matrix->segment_list->item);
 }
-#endif
 
 /** Set the position of the default full-screen segment's text */
 void klm_mat_simple_set_text_position(klm_matrix * const matrix, float text_pos) {
