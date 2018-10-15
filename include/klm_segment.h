@@ -52,6 +52,7 @@ typedef struct klm_segment
 
     uint32_t codepoints[KLM_TEXT_LEN];
     size_t   text_len;
+    char     const * text;
     float    text_speed;
     float    text_pos;
 

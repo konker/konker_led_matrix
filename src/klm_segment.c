@@ -59,6 +59,7 @@ klm_segment * const klm_seg_create(
     segment->paused = false;
     segment->reverse = false;
 
+    segment->text = strdup("");
     segment->text_len = 0;
     segment->text_speed = 0;
     segment->text_pos = 0;
@@ -77,6 +78,7 @@ klm_segment * const klm_seg_create(
 
 void klm_seg_destroy(klm_segment * const seg) {
     // Free dynamically allocated memory
+    free((char *)seg->text);
     free(seg);
 }
 
@@ -149,11 +151,15 @@ uint16_t klm_seg_set_text(klm_segment *seg, const char * const text) {
         seg->text_len = KLM_TEXT_LEN;
     }
 
+    // Decompose the text into codepoints
     size_t i=0, cnt=0;
     while (cnt < seg->text_len) {
         seg->codepoints[cnt] = tinyutf8_next_codepoint(text, &i);
         cnt++;
     }
+
+    // Save the original text
+    seg->text = strdup(text);
 
     seg->_text_pixel_len = klm_seg_get_text_pixel_len(seg);
     seg->_dirty = true;
