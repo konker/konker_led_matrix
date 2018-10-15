@@ -53,11 +53,14 @@ typedef struct klm_segment
     uint32_t codepoints[KLM_TEXT_LEN];
     size_t   text_len;
     char     const * text;
-    float    text_speed;
-    float    text_pos;
+    float    text_hspeed;
+    float    text_vspeed;
+    float    text_hpos;
+    float    text_vpos;
 
     uint16_t _row_width;
-    uint16_t _text_pixel_len;
+    uint16_t _text_pixel_width;
+    uint16_t _text_pixel_height;
     bool     _dirty;
 
 } klm_segment;
@@ -93,16 +96,16 @@ void klm_seg_start(klm_segment * const seg);
 void klm_seg_stop(klm_segment * const seg);
 
 /** Set the segment's text content */
-uint16_t klm_seg_set_text(klm_segment * const seg, const char *text);
+void klm_seg_set_text(klm_segment * const seg, const char *text);
 
 /** Clear the buffer of a particular segment */
 void klm_seg_clear_text(klm_segment * const seg);
 
 /** Set the animation scroll speed of the segment in pixels per frame */
-void klm_seg_set_text_speed(klm_segment * const seg, float speed);
+void klm_seg_set_text_speed(klm_segment * const seg, float hspeed, float vspeed);
 
 /** Set the position of the segment's text */
-void klm_seg_set_text_position(klm_segment * const seg, float text_pos);
+void klm_seg_set_text_position(klm_segment * const seg, float text_hpos, float text_vpos);
 
 /** Centre the segment's text */
 void klm_seg_center_text(klm_segment * const seg);
@@ -113,7 +116,9 @@ void klm_seg_reverse(klm_segment * const seg);
 /** Render the segment's text */
 void klm_seg_render_text(klm_segment * const seg);
 
-uint16_t klm_seg_get_text_pixel_len(klm_segment * const seg);
+/** Helpers */
+uint16_t klm_seg_get_text_pixel_width(klm_segment * const seg);
+uint16_t klm_seg_get_text_pixel_height(klm_segment * const seg);
 
 #ifdef __cplusplus
 }

@@ -144,10 +144,10 @@ void klm_mat_simple_init(klm_matrix * const matrix,
                          hexfont * const font);
 
 /** Set the default full-screen segment's text content */
-uint16_t klm_mat_simple_set_text(klm_matrix * const matrix, const char *text);
+void klm_mat_simple_set_text(klm_matrix * const matrix, const char *text);
 
 /** Set the animation scroll speed of the default full-screen segment in pixels per frame */
-void klm_mat_simple_set_text_speed(klm_matrix * const matrix, float speed);
+void klm_mat_simple_set_text_speed(klm_matrix * const matrix, float hspeed, float vspeed);
 
 /** Start animation of matrix content */
 void klm_mat_simple_start(klm_matrix * const matrix);
@@ -156,7 +156,7 @@ void klm_mat_simple_start(klm_matrix * const matrix);
 void klm_mat_simple_stop(klm_matrix * const matrix);
 
 /** Set the position of the default full-screen segment's text */
-void klm_mat_simple_set_text_position(klm_matrix * const matrix, float text_pos);
+void klm_mat_simple_set_text_position(klm_matrix * const matrix, float text_hpos, float text_vpos);
 
 /** Reverse the matrix display */
 void klm_mat_simple_reverse(klm_matrix * const matrix);

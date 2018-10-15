@@ -61,8 +61,10 @@ klm_segment * const klm_seg_create(
 
     segment->text = strdup("");
     segment->text_len = 0;
-    segment->text_speed = 0;
-    segment->text_pos = 0;
+    segment->text_hspeed = 0;
+    segment->text_vspeed = 0;
+    segment->text_hpos = 0;
+    segment->text_vpos = 0;
 
     int i;
     for (i=0; i<KLM_TEXT_LEN; i++) {
@@ -70,7 +72,8 @@ klm_segment * const klm_seg_create(
     }
 
     segment->_row_width = (uint16_t)(width / KLM_BYTE_WIDTH);
-    segment->_text_pixel_len = 0;
+    segment->_text_pixel_width = 0;
+    segment->_text_pixel_height = 0;
     segment->_dirty = false;
 
     return segment;
@@ -103,14 +106,25 @@ void klm_seg_tick(klm_segment * const seg) {
     }
     */
 
-    if (seg->text_speed != 0 && !seg->paused) {
-        // Animate and render text
-        seg->text_pos += seg->text_speed;
-        if (seg->text_pos < -seg->_text_pixel_len) {
-            seg->text_pos = seg->width;
+    if (seg->text_hspeed != 0 && !seg->paused) {
+        // Animate and render text horizontally
+        seg->text_hpos += seg->text_hspeed;
+        if (seg->text_hpos < -seg->_text_pixel_width) {
+            seg->text_hpos = seg->width;
         }
-        else if (seg->text_pos > seg->width) {
-            seg->text_pos = -seg->_text_pixel_len;
+        else if (seg->text_hpos > seg->width) {
+            seg->text_hpos = -seg->_text_pixel_width;
+        }
+    }
+
+    if (seg->text_vspeed != 0 && !seg->paused) {
+        // Animate and render text vertically
+        seg->text_vpos += seg->text_vspeed;
+        if (seg->text_vpos < -seg->_text_pixel_height) {
+            seg->text_vpos = seg->height;
+        }
+        else if (seg->text_vpos > seg->width) {
+            seg->text_vpos = -seg->_text_pixel_height;
         }
     }
 
@@ -144,7 +158,7 @@ void klm_seg_hide(klm_segment * const seg) {
 }
 
 /** Set the segment's text content */
-uint16_t klm_seg_set_text(klm_segment *seg, const char * const text) {
+void klm_seg_set_text(klm_segment *seg, const char * const text) {
     //[TODO: should the codepoints buffer by dynamically allocated?]
     seg->text_len = tinyutf8_strlen(text);
     if (seg->text_len > KLM_TEXT_LEN) {
@@ -162,22 +176,24 @@ uint16_t klm_seg_set_text(klm_segment *seg, const char * const text) {
     free((char *)seg->text);
     seg->text = strdup(text);
 
-    seg->_text_pixel_len = klm_seg_get_text_pixel_len(seg);
+    seg->_text_pixel_width = klm_seg_get_text_pixel_width(seg);
+    seg->_text_pixel_height = klm_seg_get_text_pixel_height(seg);
     seg->_dirty = true;
 
-    return seg->_text_pixel_len;
+    return;
 }
 
 /** Clear the text of a particular segment */
 void klm_seg_clear_text(klm_segment * const seg) {
     klm_seg_set_text(seg, "");
-    klm_seg_set_text_speed(seg, 0);
-    klm_seg_set_text_position(seg, 0);
+    klm_seg_set_text_speed(seg, 0, 0);
+    klm_seg_set_text_position(seg, 0, 0);
 }
 
 /** Set the animation scroll speed of the segment in pixels per frame */
-void klm_seg_set_text_speed(klm_segment *seg, float speed) {
-    seg->text_speed = speed;
+void klm_seg_set_text_speed(klm_segment *seg, float hspeed, float vspeed) {
+    seg->text_hspeed = hspeed;
+    seg->text_vspeed = vspeed;
     seg->_dirty = true;
 }
 
@@ -194,16 +210,20 @@ void klm_seg_stop(klm_segment * const seg) {
 }
 
 /** Set the position of the segment's text */
-void klm_seg_set_text_position(klm_segment * const seg, float text_pos) {
-    seg->text_pos = text_pos;
+void klm_seg_set_text_position(klm_segment * const seg, float text_hpos, float text_vpos) {
+    seg->text_hpos = text_hpos;
+    seg->text_vpos = text_vpos;
     seg->_dirty = true;
 }
 
-/** Center the segment's text */
+/** Center the segment's text horizontally */
 void klm_seg_center_text(klm_segment * const seg) {
-    int pl = klm_seg_get_text_pixel_len(seg);
+    int pl = klm_seg_get_text_pixel_width(seg);
+    seg->text_hpos = -(pl/2 - seg->width/2);
 
-    seg->text_pos = -(pl/2 - seg->width/2);
+    pl = klm_seg_get_text_pixel_height(seg);
+    seg->text_vpos = -(pl/2 - seg->height/2);
+
     seg->_dirty = true;
 }
 
@@ -220,7 +240,8 @@ void klm_seg_render_text(klm_segment *seg) {
 
     int16_t i;
     for (i=0; i<seg->text_len; i++) {
-        int16_t _x = (seg->x + (int16_t)seg->text_pos + width_accum);
+        int16_t _x = (seg->x + (int16_t)seg->text_hpos + width_accum);
+        int16_t _y = (seg->y + (int16_t)seg->text_vpos);
         hexfont_character * const c = hexfont_get(font, seg->codepoints[i]);
         if (c == NULL) {
             continue;
@@ -229,7 +250,7 @@ void klm_seg_render_text(klm_segment *seg) {
         if (_x < seg->x + seg->width) {
             klm_mat_render_sprite(seg->matrix,
                                    c,
-                                   _x, seg->y,
+                                   _x, _y,
                                    seg->x, seg->y,
                                    seg->x + seg->width, seg->y + seg->height);
         }
@@ -238,7 +259,7 @@ void klm_seg_render_text(klm_segment *seg) {
     }
 }
 
-uint16_t klm_seg_get_text_pixel_len(klm_segment * const seg) {
+uint16_t klm_seg_get_text_pixel_width(klm_segment * const seg) {
     uint16_t ret = 0;
     hexfont * const font =
         hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
@@ -252,6 +273,25 @@ uint16_t klm_seg_get_text_pixel_len(klm_segment * const seg) {
 
         ret +=
             (c->width + KLM_CHARACTER_SPACING);
+    }
+    return ret;
+}
+
+uint16_t klm_seg_get_text_pixel_height(klm_segment * const seg) {
+    uint16_t ret = 0;
+    hexfont * const font =
+        hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
+
+    int16_t i;
+    for (i=0; i<seg->text_len; i++) {
+        hexfont_character * const c = hexfont_get(font, seg->codepoints[i]);
+        if (c == NULL) {
+            continue;
+        }
+
+        if (c->height > ret) {
+            ret = c->height;
+        }
     }
     return ret;
 }

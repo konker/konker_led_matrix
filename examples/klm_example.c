@@ -114,11 +114,11 @@ int main() {
 
     // Set some text in segment 0
     klm_seg_set_text(example_segment0, "HELLO");
-    klm_seg_set_text_speed(example_segment0, -EXAMPLE_TEXT_SPEED1);
+    klm_seg_set_text_speed(example_segment0, -EXAMPLE_TEXT_SPEED1, 0);
 
     // Set some text in segment 1
     klm_seg_set_text(example_segment1, "WORLD!");
-    klm_seg_set_text_speed(example_segment1, EXAMPLE_TEXT_SPEED2);
+    klm_seg_set_text_speed(example_segment1, EXAMPLE_TEXT_SPEED2, 0);
 
     klm_seg_reverse(example_segment1);
 

@@ -80,7 +80,7 @@ int main() {
     klm_mat_simple_set_text(example_matrix, "KÖNKER IS INVINCIBLE!!");
 
     // Make the text scroll left to right
-    klm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1);
+    klm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1, 0);
 
     KLM_LOG(example_matrix, "Log test %d\n", 123);
 

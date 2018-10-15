@@ -75,7 +75,7 @@ int main() {
 
     klm_mat_simple_init(example_matrix, example_font);
     klm_mat_simple_set_text(example_matrix, "Testi-test");
-    klm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1);
+    klm_mat_simple_set_text_speed(example_matrix, -EXAMPLE_TEXT_SPEED1, 0);
 
     // Call the animation driver for a while
     int16_t j = 0;
