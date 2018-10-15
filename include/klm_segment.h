@@ -104,6 +104,9 @@ void klm_seg_set_text_speed(klm_segment * const seg, float speed);
 /** Set the position of the segment's text */
 void klm_seg_set_text_position(klm_segment * const seg, float text_pos);
 
+/** Centre the segment's text */
+void klm_seg_center_text(klm_segment * const seg);
+
 /** Reverse the segment */
 void klm_seg_reverse(klm_segment * const seg);
 

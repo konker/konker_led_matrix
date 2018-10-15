@@ -199,6 +199,14 @@ void klm_seg_set_text_position(klm_segment * const seg, float text_pos) {
     seg->_dirty = true;
 }
 
+/** Center the segment's text */
+void klm_seg_center_text(klm_segment * const seg) {
+    int pl = klm_seg_get_text_pixel_len(seg);
+
+    seg->text_pos = -(pl/2 - seg->width/2);
+    seg->_dirty = true;
+}
+
 /** Reverse the segment */
 void klm_seg_reverse(klm_segment * const seg) {
     seg->reverse = !seg->reverse;
