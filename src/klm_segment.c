@@ -159,6 +159,7 @@ uint16_t klm_seg_set_text(klm_segment *seg, const char * const text) {
     }
 
     // Save the original text
+    free((char *)seg->text);
     seg->text = strdup(text);
 
     seg->_text_pixel_len = klm_seg_get_text_pixel_len(seg);
