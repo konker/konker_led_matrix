@@ -75,7 +75,7 @@ extern "C" {
 #define KLM_ONE_MILLION 1000000
 #define KLM_ONE_THOUSAND 1000
 #define KLM_NOW_MICROSECS(var, time_spec_var) \
-        clock_gettime(CLOCK_MONOTONIC, &time_spec_var); \
+        clock_gettime(CLOCK_REALTIME, &time_spec_var); \
         var =  time_spec_var.tv_sec * KLM_ONE_MILLION; \
         var += time_spec_var.tv_nsec / KLM_ONE_THOUSAND; \
 

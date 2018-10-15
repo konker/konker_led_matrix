@@ -168,24 +168,14 @@ void klm_mat_simple_reverse(klm_matrix * const matrix) {
 
 /** Drive animation */
 void klm_mat_tick(klm_matrix *matrix) {
-    KLM_NOW_MICROSECS(matrix->micros_1, matrix->now_t);
+    klm_mat_clear(matrix);
 
-    // Delay to make loop time consistent
-    int64_t period = KLM_TICK_PERIOD_MICROS
-                        - (matrix->micros_1 - matrix->micros_0);
-
-    if (period <= 0) {
-        klm_mat_clear(matrix);
-
-        klm_segment_list *iter = matrix->segment_list;
-        while (iter) {
-            klm_seg_tick(iter->item);
-            iter = iter->next;
-        }
-        klm_mat_swap_buffers(matrix);
-
-        matrix->micros_0 = matrix->micros_1;
+    klm_segment_list *iter = matrix->segment_list;
+    while (iter) {
+        klm_seg_tick(iter->item);
+        iter = iter->next;
     }
+    klm_mat_swap_buffers(matrix);
 }
 
 /** Switch off matrix display altogether */
