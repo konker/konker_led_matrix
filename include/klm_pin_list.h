@@ -23,8 +23,7 @@ typedef struct __klm_pin_list_node_t {
 
 // A list of code points and a way of looking up code points efficiently
 typedef struct klm_pin_list {
-    __klm_pin_list_node_t **rep;
-    uint16_t length;
+    __klm_pin_list_node_t *head;
 
 } klm_pin_list;
 

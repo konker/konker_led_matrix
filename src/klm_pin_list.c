@@ -5,65 +5,63 @@
 #include <math.h>
 #include "klm_pin_list.h"
 
-#define KLM_PIN_LIST_NO_CHAR -1
-#define KLM_PIN_LIST_BYTE_WIDTH 8
-
-
-static uint8_t __klm_pin_list_hash_function(const char pin_name);
 
 klm_pin_list * const klm_pin_list_create() {
     // Allocate memory for the pin list structure
     klm_pin_list * const list = malloc(sizeof(klm_pin_list));
+    list->head = NULL;
 
-    // Allocate memory for rep
-    list->rep = calloc((int)pow(2, sizeof(char) * KLM_PIN_LIST_BYTE_WIDTH),
-                       sizeof(__klm_pin_list_node_t));
-
-//printf("klm_pin_list: %d, %d, %d\n", (int)sizeof(char) * KLM_PIN_LIST_BYTE_WIDTH, (int)pow(2, sizeof(char) * KLM_PIN_LIST_BYTE_WIDTH), (int)pow(2, 8));
     return list;
 }
 
 void klm_pin_list_destroy(klm_pin_list * const list) {
-    uint16_t i;
-    for (i=0; i<sizeof(char); i++) {
-        __klm_pin_list_node_t * node = list->rep[i];
-
-        if (node != NULL) {
-            free(node);
-        }
+    // Traverse linked list and free each node
+    __klm_pin_list_node_t * prev = list->head;
+    __klm_pin_list_node_t * last = list->head;
+    while (last != NULL) {
+        prev = last;
+        last = last->next;
+        free(prev);
     }
-    free(list->rep);
+
+    // Free the list structure itself
     free(list);
 }
 
 uint8_t klm_pin_list_get(klm_pin_list * const list, const char pin_name) {
-    const uint16_t key = __klm_pin_list_hash_function(pin_name);
-    __klm_pin_list_node_t const * node = list->rep[key];
-    if (node == NULL) {
-        return KLM_PIN_LIST_NO_CHAR;
+    // Find the last node
+    __klm_pin_list_node_t * last = list->head;
+    while (last != NULL && last->key != pin_name) {
+        last = last->next;
     }
 
-    return node->value;
+    return last->value;
 }
 
 void klm_pin_list_put(klm_pin_list * const list, char pin_name, uint8_t pin_number) {
-    const char key = __klm_pin_list_hash_function(pin_name);
-    if (list->rep[key] == NULL) {
-        // Initialize a node to hold the item
-        list->rep[key] = malloc(sizeof(__klm_pin_list_node_t));
-        list->rep[key]->key   = key;
-        list->rep[key]->next  = NULL;
+    // First node case
+    if (list->head == NULL) {
+        list->head = malloc(sizeof(__klm_pin_list_node_t));
+        list->head->key = pin_name;
+        list->head->value = pin_number;
+        list->head->next = NULL;
+        return;
     }
 
-    // Set the node value
-    list->rep[key]->value = pin_number;
+    // Find the last node
+    __klm_pin_list_node_t * prev = list->head;
+    __klm_pin_list_node_t * last = list->head;
+    while (last != NULL) {
+        prev = last;
+        last = last->next;
+    }
+
+    // Create the new node and wire up the linked list
+    last = malloc(sizeof(__klm_pin_list_node_t));
+    last->key = pin_name;
+    last->value = pin_number;
+    last->next = NULL;
+    prev->next = last;
+    return;
 }
-
-
-// ----------------------------------------------------------------------------
-// Static helpers
-static uint8_t __klm_pin_list_hash_function(const char pin_name) {
-    return (uint8_t)pin_name;
-}
-
 
