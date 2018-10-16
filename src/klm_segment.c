@@ -216,15 +216,28 @@ void klm_seg_set_text_position(klm_segment * const seg, float text_hpos, float t
     seg->_dirty = true;
 }
 
-/** Center the segment's text horizontally */
-void klm_seg_center_text(klm_segment * const seg) {
-    int pl = klm_seg_get_text_pixel_width(seg);
-    seg->text_hpos = -(pl/2 - seg->width/2);
+/** Center the segment's text */
+void klm_seg_center_text(klm_segment * const seg, const bool h, const bool v) {
+    if (h) {
+        uint16_t pl = klm_seg_get_text_pixel_width(seg);
+        seg->text_hpos = -(pl/2 - seg->width/2);
+        seg->_dirty = true;
+    }
+
+    if (v) {
+        uint16_t pl = klm_seg_get_text_pixel_height(seg);
+        seg->text_vpos = -(pl/2 - seg->height/2);
+        seg->_dirty = true;
+    }
+}
+
+/** Query the center coordinates for the segment's text */
+void klm_seg_query_center_text(klm_segment * const seg, float * h, float *v) {
+    uint16_t pl = klm_seg_get_text_pixel_width(seg);
+    *h = -(pl/2 - seg->width/2);
 
     pl = klm_seg_get_text_pixel_height(seg);
-    seg->text_vpos = -(pl/2 - seg->height/2);
-
-    seg->_dirty = true;
+    *v = -(pl/2 - seg->height/2);
 }
 
 /** Reverse the segment */
@@ -278,20 +291,8 @@ uint16_t klm_seg_get_text_pixel_width(klm_segment * const seg) {
 }
 
 uint16_t klm_seg_get_text_pixel_height(klm_segment * const seg) {
-    uint16_t ret = 0;
     hexfont * const font =
         hexfont_list_get_nth(seg->matrix->font_list, seg->font_index);
 
-    int16_t i;
-    for (i=0; i<seg->text_len; i++) {
-        hexfont_character * const c = hexfont_get(font, seg->codepoints[i]);
-        if (c == NULL) {
-            continue;
-        }
-
-        if (c->height > ret) {
-            ret = c->height;
-        }
-    }
-    return ret;
+    return font->glyph_height;
 }

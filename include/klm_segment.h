@@ -108,7 +108,10 @@ void klm_seg_set_text_speed(klm_segment * const seg, float hspeed, float vspeed)
 void klm_seg_set_text_position(klm_segment * const seg, float text_hpos, float text_vpos);
 
 /** Centre the segment's text */
-void klm_seg_center_text(klm_segment * const seg);
+void klm_seg_center_text(klm_segment * const seg, const bool h, const bool v);
+
+/** Query the center coordinates for the segment's text */
+void klm_seg_query_center_text(klm_segment * const seg, float *h, float *v);
 
 /** Reverse the segment */
 void klm_seg_reverse(klm_segment * const seg);
