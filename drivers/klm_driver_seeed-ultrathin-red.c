@@ -22,8 +22,11 @@
  */
 
 
+#include <unistd.h>
 #include "klm_matrix.h"
 #include "klm_segment.h"
+
+#define SCAN_LOOP_DELAY_MICROS 400
 
 
 /** Switch a matrix pixel on */
@@ -59,56 +62,54 @@ void klm_mat_scan(klm_matrix * const matrix) {
     if (!matrix->on) return;
 
 #ifndef KLM_NON_GPIO_MACHINE
-    // Process each 8-pixel byte in the row
-    uint8_t offset = KLM_ROW_OFFSET(matrix, matrix->scan_row);
+    matrix->scan_row = 0;
+    uint16_t loop_limit = matrix->config->height;
+    uint16_t mod_limit = loop_limit + 1;
 
-    // Process the row in reverse order
-    int16_t x8;
-    for (x8=matrix->_row_width-1; x8>=0; x8--) {
-        uint8_t pixel8 = matrix->display_buffer1[offset + x8];
+    while (matrix->scan_row < loop_limit) {
+        // Process each 8-pixel byte in the row
+        uint8_t offset = KLM_ROW_OFFSET(matrix, matrix->scan_row);
 
-        // Flip all bits
-        pixel8 ^= 0xFF;
+        // Process the row in reverse order
+        int16_t x8;
+        for (x8=matrix->_row_width-1; x8>=0; x8--) {
+            uint8_t pixel8 = matrix->display_buffer1[offset + x8];
 
-        // Write each pixel in the byte, in reverse order
-        shiftOut(klm_config_get_pin(matrix->config, 'r'),
-                 klm_config_get_pin(matrix->config, 'x'),
-                 MSBFIRST,
-                 pixel8);
-    }
+            // Flip all bits
+            pixel8 ^= 0xFF;
 
-    // Disable display
-    digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
-
-    // Display the rows in reverse order
-    uint16_t display_row = (matrix->config->height - 1 - matrix->scan_row);
-
-    // Select row
-    digitalWrite(klm_config_get_pin(matrix->config, 'a'), (display_row & 0x01));
-    digitalWrite(klm_config_get_pin(matrix->config, 'b'), (display_row & 0x02));
-    digitalWrite(klm_config_get_pin(matrix->config, 'c'), (display_row & 0x04));
-    digitalWrite(klm_config_get_pin(matrix->config, 'd'), (display_row & 0x08));
-
-    // Latch data
-    digitalWrite(klm_config_get_pin(matrix->config, 's'), LOW);
-    digitalWrite(klm_config_get_pin(matrix->config, 's'), HIGH);
-    digitalWrite(klm_config_get_pin(matrix->config, 's'), LOW);
-
-    // Enable display
-    digitalWrite(klm_config_get_pin(matrix->config, 'o'), LOW);
-
-    // Next row, wrap around at the bottom
-    matrix->scan_row = (matrix->scan_row + 1) % matrix->config->height;
-
-    // Tick the matrix animation loop
-    if (matrix->scan_row == 0) {
-        klm_mat_tick(matrix);
-
-        // Toggle the display off/on a number of times to appear to "dim"
-        for (int i=0; i<matrix->scan_modulation; i++) {
-            digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
-            digitalWrite(klm_config_get_pin(matrix->config, 'o'), LOW);
+            // Write each pixel in the byte, in reverse order
+            shiftOut(klm_config_get_pin(matrix->config, 'r'),
+                     klm_config_get_pin(matrix->config, 'x'),
+                     MSBFIRST,
+                     pixel8);
         }
+
+        // Disable display
+        digitalWrite(klm_config_get_pin(matrix->config, 'o'), HIGH);
+
+        // Display the rows in reverse order
+        uint16_t display_row = (matrix->config->height - 1 - matrix->scan_row);
+
+        // Select row
+        digitalWrite(klm_config_get_pin(matrix->config, 'a'), (display_row & 0x01));
+        digitalWrite(klm_config_get_pin(matrix->config, 'b'), (display_row & 0x02));
+        digitalWrite(klm_config_get_pin(matrix->config, 'c'), (display_row & 0x04));
+        digitalWrite(klm_config_get_pin(matrix->config, 'd'), (display_row & 0x08));
+
+        // Latch data
+        digitalWrite(klm_config_get_pin(matrix->config, 's'), LOW);
+        digitalWrite(klm_config_get_pin(matrix->config, 's'), HIGH);
+        digitalWrite(klm_config_get_pin(matrix->config, 's'), LOW);
+
+        // Enable display
+        digitalWrite(klm_config_get_pin(matrix->config, 'o'), LOW);
+
+        // Next row, wrap around at the bottom
+        matrix->scan_row = (matrix->scan_row + 1) % mod_limit;
+
+        // Avoid a tight loop using all the CPU
+        usleep(SCAN_LOOP_DELAY_MICROS);
     }
 #endif
 }
